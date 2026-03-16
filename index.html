@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TriMetrics ECE — Iron Triangle Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg-primary:#ffffff;--bg-secondary:#f5f5f3;--bg-tertiary:#eeede8;
+  --text-primary:#1a1a18;--text-secondary:#5f5e5a;--text-tertiary:#888780;
+  --border-light:rgba(0,0,0,0.09);--border-med:rgba(0,0,0,0.16);
+  --radius-md:8px;--radius-lg:12px;
+  --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;
+  --amber:#EF9F27;--red:#E24B4A;
+  --brand:#D85A30;--brand-dark:#993C1D;--brand-light:#FAECE7;
+  --purple:#534AB7;--purple-light:#EEEDFE;
+  --teal:#1D7A9E;--teal-light:#E1F0F5;--teal-dark:#0F526E;
+}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-tertiary);color:var(--text-primary);font-size:14px;line-height:1.5;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* ── ONBOARDING ── */
+#screen-onboarding{align-items:center;justify-content:flex-start;padding:28px 16px 48px;background:var(--bg-tertiary);}
+.disclaimer{width:100%;max-width:500px;background:#FAEEDA;border:0.5px solid var(--amber);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:24px;font-size:12px;color:#854F0B;display:flex;gap:8px;align-items:flex-start;}
+.ob-card{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);padding:32px;width:100%;max-width:500px;}
+.logo-row{display:flex;align-items:center;gap:8px;margin-bottom:24px;justify-content:center;}
+.logo-mark{font-size:16px;font-weight:600;color:var(--text-primary);}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+.step-label{font-size:11px;color:var(--text-tertiary);text-align:center;margin-bottom:5px;letter-spacing:0.5px;}
+.progress-track{height:3px;background:var(--bg-secondary);border-radius:2px;margin-bottom:26px;overflow:hidden;}
+.progress-fill{height:3px;border-radius:2px;background:var(--green);transition:width 0.4s ease;}
+h2.ob-title{font-size:20px;font-weight:600;color:var(--text-primary);margin-bottom:6px;text-align:center;}
+.ob-subtitle{font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:22px;line-height:1.5;}
+.ob-label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:5px;}
+.ob-input{width:100%;padding:10px 12px;border:0.5px solid var(--border-med);border-radius:var(--radius-md);font-size:14px;color:var(--text-primary);background:var(--bg-primary);margin-bottom:13px;outline:none;font-family:inherit;}
+.ob-input:focus{border-color:var(--green);}
+.btn-ob-primary{width:100%;padding:11px;background:var(--green);color:white;border:none;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;font-family:inherit;transition:background 0.15s;}
+.btn-ob-primary:hover{background:var(--green-dark);}
+.btn-ob-ghost{width:100%;padding:10px;background:transparent;color:var(--text-secondary);border:0.5px solid var(--border-med);border-radius:var(--radius-md);font-size:13px;cursor:pointer;margin-top:8px;font-family:inherit;transition:background 0.15s;}
+.btn-ob-ghost:hover{background:var(--bg-secondary);}
+.divider{border:none;border-top:0.5px solid var(--border-light);margin:18px 0;}
+.mfa-opt{display:flex;align-items:flex-start;gap:12px;padding:13px;border:0.5px solid var(--border-light);border-radius:var(--radius-md);cursor:pointer;margin-bottom:10px;transition:all 0.15s;}
+.mfa-opt.selected{border-color:var(--green);background:var(--green-light);}
+.mfa-icon{width:34px;height:34px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.q-opt{display:flex;align-items:flex-start;gap:12px;padding:12px 13px;border:0.5px solid var(--border-light);border-radius:var(--radius-md);cursor:pointer;margin-bottom:8px;transition:all 0.15s;}
+.q-opt:hover{border-color:var(--border-med);background:var(--bg-secondary);}
+.q-opt.selected{border-color:var(--green);background:var(--green-light);}
+.opt-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.opt-label{font-size:13px;color:var(--text-primary);font-weight:600;}
+.opt-sub{font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;}
+.q-num{font-size:12px;font-weight:600;color:var(--green);margin-bottom:5px;}
+.q-text{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.q-hint{font-size:12px;color:var(--text-secondary);margin-bottom:15px;}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.pill{padding:7px 14px;border:0.5px solid var(--border-med);border-radius:20px;font-size:13px;color:var(--text-secondary);cursor:pointer;background:transparent;transition:all 0.15s;}
+.pill:hover{border-color:var(--green);color:var(--green);}
+.pill.selected{border-color:var(--green);background:var(--green-light);color:var(--green-dark);font-weight:600;}
+.int-section-label{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:0.7px;text-transform:uppercase;margin:14px 0 8px;}
+.int-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:4px;}
+.int-card{border:0.5px solid var(--border-light);border-radius:var(--radius-lg);padding:13px;cursor:pointer;transition:all 0.15s;position:relative;}
+.int-card:hover{border-color:var(--border-med);background:var(--bg-secondary);}
+.int-card.connected{border-color:var(--green);pointer-events:none;opacity:0.75;}
+.int-logo{width:34px;height:34px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:7px;}
+.int-name{font-size:12px;font-weight:600;color:var(--text-primary);}
+.int-desc{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+.int-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;display:inline-block;margin-top:5px;}
+.tag-pop{background:#E6F1FB;color:#185FA5;}.tag-ece{background:#EAF3DE;color:#3B6D11;}
+.tag-pay{background:var(--purple-light);color:var(--purple);}.tag-acc{background:#FAEEDA;color:#854F0B;}
+.check-badge{position:absolute;top:9px;right:9px;width:18px;height:18px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;}
+.connect-modal{background:var(--bg-secondary);border:0.5px solid var(--border-med);border-radius:var(--radius-lg);padding:14px;margin:10px 0 6px;}
+.connect-field{width:100%;padding:8px 10px;border:0.5px solid var(--border-med);border-radius:var(--radius-md);font-size:13px;color:var(--text-primary);background:var(--bg-primary);margin-bottom:8px;outline:none;font-family:inherit;}
+.connect-field:focus{border-color:var(--green);}
+.btn-connect{padding:8px 16px;background:var(--green);color:white;border:none;border-radius:var(--radius-md);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.connected-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg-primary);border:0.5px solid #9FE1CB;border-radius:var(--radius-md);margin-bottom:7px;}
+.connected-icon{width:26px;height:26px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--green-light);flex-shrink:0;}
+.manual-opt{display:flex;align-items:center;gap:10px;padding:12px 13px;border:0.5px solid var(--border-light);border-radius:var(--radius-md);cursor:pointer;margin-bottom:8px;transition:all 0.15s;}
+.manual-opt:hover{background:var(--bg-secondary);}
+.manual-opt.selected{border-color:var(--green);background:var(--green-light);}
+.spinner{width:44px;height:44px;border:3px solid var(--bg-secondary);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.lstep{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-secondary);padding:5px 0;}
+.lstep-dot{width:8px;height:8px;border-radius:50%;background:var(--border-med);flex-shrink:0;}
+.lstep-dot.done{background:var(--green);}.lstep-dot.active{background:var(--amber);animation:pulse 1s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.ws-topbar{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+.ws-tag{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:600;}
+.ws-metric{background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 12px;}
+.ws-metric-label{font-size:10px;color:var(--text-tertiary);}
+.ws-metric-val{font-size:18px;font-weight:600;color:var(--text-primary);}
+.sync-bar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--green);background:var(--green-light);border-radius:var(--radius-md);padding:10px 12px;margin-bottom:12px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.2s ease-in-out infinite;}
+
+/* ── DASHBOARD ── */
+#screen-dashboard{flex-direction:row;height:100vh;overflow:hidden;}
+.sidebar{width:224px;min-width:224px;background:var(--bg-primary);border-right:0.5px solid var(--border-light);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.logo{padding:18px 20px 14px;border-bottom:0.5px solid var(--border-light);}
+.nav{padding:10px 0;flex:1;}
+.nav-section{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:0.8px;text-transform:uppercase;padding:10px 20px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:13px;color:var(--text-secondary);cursor:pointer;border-left:2px solid transparent;transition:all 0.15s;user-select:none;}
+.nav-item.active{color:var(--text-primary);background:var(--bg-secondary);font-weight:600;}
+.nav-item:hover:not(.active){background:var(--bg-secondary);}
+.nd{width:6px;height:6px;border-radius:50%;background:var(--border-med);flex-shrink:0;}
+.footer-user{padding:14px 16px;border-top:0.5px solid var(--border-light);}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{background:var(--bg-primary);border-bottom:0.5px solid var(--border-light);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;flex-wrap:wrap;gap:8px;}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.period-selector{display:flex;border:0.5px solid var(--border-med);border-radius:var(--radius-md);overflow:hidden;}
+.period-btn{padding:5px 12px;font-size:12px;cursor:pointer;color:var(--text-secondary);background:transparent;border:none;transition:all 0.15s;font-family:inherit;}
+.period-btn.active{background:var(--bg-secondary);color:var(--text-primary);font-weight:600;}
+.btn{padding:6px 14px;font-size:12px;border:0.5px solid var(--border-med);border-radius:var(--radius-md);background:transparent;color:var(--text-secondary);cursor:pointer;transition:all 0.15s;font-family:inherit;}
+.btn:hover{background:var(--bg-secondary);}
+.btn-ai{color:white;border:none;font-weight:600;font-family:inherit;}
+.content{flex:1;overflow-y:auto;padding:20px 24px;}
+.view{display:none;}.view.active{display:block;}
+.sum-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px;}
+.sum-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:13px 15px;}
+.sum-label{font-size:11px;color:var(--text-tertiary);}
+.sum-val{font-size:22px;font-weight:600;margin-top:3px;}
+.sum-delta{font-size:11px;margin-top:3px;}
+.du{color:var(--green);}.dd{color:var(--red);}.df{color:var(--amber);}
+.card{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);padding:16px;}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.card-title{font-size:13px;font-weight:600;color:var(--text-primary);}
+.two-col{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:12px;margin-bottom:14px;}
+.three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px;}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block;}
+.bg{background:#EAF3DE;color:#3B6D11;}.ba{background:#FAEEDA;color:#854F0B;}
+.br{background:#FCEBEB;color:#A32D2D;}.bb{background:#E6F1FB;color:#185FA5;}
+.bt{background:var(--teal-light);color:var(--teal-dark);}
+/* subsidy badge */
+.bsub{background:#F0E6FE;color:#6B21A8;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block;}
+/* subsidy split bar */
+.sub-split{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:6px;}
+.sub-private{background:var(--green);}
+.sub-subsidy{background:#8B5CF6;}
+.sub-pending{background:#D4B8FE;}
+.sub-labels{display:flex;gap:10px;font-size:10px;margin-top:4px;flex-wrap:wrap;}
+.sub-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;}
+/* subsidy callout */
+.sub-callout{background:#F5F0FE;border:0.5px solid #C4B5FD;border-radius:var(--radius-md);padding:10px 13px;font-size:12px;color:#4C1D95;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start;}
+.school-hdr{display:grid;grid-template-columns:1.8fr repeat(3,0.8fr) 70px 88px;gap:10px;padding:0 14px 8px;font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.school-row{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);padding:12px 14px;margin-bottom:8px;display:grid;grid-template-columns:1.8fr repeat(3,0.8fr) 70px 88px;align-items:center;gap:10px;cursor:pointer;transition:border-color 0.15s;}
+.school-row:hover{border-color:var(--brand);}
+.school-row.sel{background:#fff8f6;}
+.prog-row{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);padding:12px 14px;margin-bottom:8px;display:grid;grid-template-columns:1.8fr 0.8fr 0.8fr 0.8fr 1fr 88px;align-items:center;gap:10px;cursor:pointer;transition:border-color 0.15s;}
+.prog-row:hover{border-color:var(--teal);}
+.prog-hdr{display:grid;grid-template-columns:1.8fr 0.8fr 0.8fr 0.8fr 1fr 88px;gap:10px;padding:0 14px 8px;font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.sn{font-size:13px;font-weight:600;}.ss{font-size:11px;color:var(--text-tertiary);margin-top:1px;}
+.mv{font-size:15px;font-weight:600;text-align:center;}
+.tri-mini{display:flex;flex-direction:column;gap:3px;}
+.bar-t{height:4px;background:var(--bg-secondary);border-radius:2px;overflow:hidden;}
+.bar-f{height:4px;border-radius:2px;}
+.ins-row{display:flex;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border-light);align-items:flex-start;}
+.ins-row:last-child{border-bottom:none;}
+.ins-ico{width:26px;height:26px;border-radius:var(--radius-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.ia{background:#FAEEDA;}.ig{background:#EAF3DE;}.ir{background:#FCEBEB;}.ib{background:#E6F1FB;}.ip{background:#F0E6FE;}
+.ins-txt{font-size:12px;color:var(--text-secondary);line-height:1.5;}
+.ins-lnk{font-size:11px;cursor:pointer;margin-top:2px;}
+.ins-lnk:hover{text-decoration:underline;}
+.legend{display:flex;gap:14px;font-size:11px;color:var(--text-secondary);margin-bottom:8px;flex-wrap:wrap;}
+.lsq{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle;}
+.detail-panel{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;margin-bottom:14px;}
+.rtable{width:100%;border-collapse:collapse;font-size:12px;}
+.rtable th{font-size:10px;font-weight:600;color:var(--text-tertiary);text-align:left;padding:6px 4px;border-bottom:0.5px solid var(--border-light);letter-spacing:0.4px;text-transform:uppercase;}
+.rtable td{padding:9px 4px;border-bottom:0.5px solid var(--border-light);vertical-align:middle;}
+.rtable tr:last-child td{border-bottom:none;}
+.ai-panel{position:fixed;right:0;top:0;bottom:0;width:340px;background:var(--bg-primary);border-left:0.5px solid var(--border-light);display:flex;flex-direction:column;z-index:100;transform:translateX(100%);transition:transform 0.25s ease;box-shadow:-4px 0 24px rgba(0,0,0,0.08);}
+.ai-panel.open{transform:translateX(0);}
+.ai-hdr{padding:14px 16px;border-bottom:0.5px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
+.ai-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.ai-msg{padding:10px 13px;border-radius:var(--radius-md);font-size:13px;line-height:1.55;max-width:92%;}
+.ai-msg.bot{background:var(--bg-secondary);align-self:flex-start;}
+.ai-suggs{padding:8px 16px;display:flex;flex-direction:column;gap:6px;}
+.ai-sugg{font-size:12px;padding:8px 11px;border:0.5px solid var(--border-med);border-radius:var(--radius-md);cursor:pointer;color:var(--text-secondary);background:transparent;text-align:left;transition:all 0.15s;font-family:inherit;}
+.ai-in-row{padding:10px 16px;border-top:0.5px solid var(--border-light);display:flex;gap:8px;}
+.ai-input{flex:1;padding:9px 11px;border:0.5px solid var(--border-med);border-radius:var(--radius-md);font-size:13px;outline:none;background:var(--bg-primary);color:var(--text-primary);font-family:inherit;}
+.ai-send{padding:9px 14px;color:white;border:none;border-radius:var(--radius-md);font-size:13px;cursor:pointer;font-weight:600;font-family:inherit;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;display:flex;align-items:center;justify-content:center;}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:var(--bg-primary);border-radius:var(--radius-lg);padding:26px;width:360px;border:0.5px solid var(--border-light);box-shadow:0 8px 40px rgba(0,0,0,0.12);}
+.exp-opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-md);cursor:pointer;margin-bottom:9px;transition:all 0.15s;}
+.exp-opt:hover{background:var(--bg-secondary);}
+.exp-ico{width:34px;height:34px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.share-input{width:100%;padding:9px 11px;border:0.5px solid var(--border-med);border-radius:var(--radius-md);font-size:13px;margin-top:8px;outline:none;background:var(--bg-primary);color:var(--text-primary);font-family:inherit;}
+.modal-footer{display:flex;gap:8px;margin-top:18px;}
+.btn-cancel{flex:1;padding:10px;font-size:13px;border:0.5px solid var(--border-med);border-radius:var(--radius-md);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit;}
+.btn-confirm{flex:1;padding:10px;font-size:13px;color:white;border:none;border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-family:inherit;}
+input[type="range"]{width:100%;cursor:pointer;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#3B6D11;color:white;padding:11px 22px;border-radius:var(--radius-md);font-size:13px;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;font-weight:500;white-space:nowrap;}
+.toast.show{opacity:1;}
+@media(max-width:900px){.sum-strip{grid-template-columns:repeat(2,1fr);}.two-col,.three-col{grid-template-columns:1fr;}.school-hdr,.prog-hdr{display:none;}.school-row{grid-template-columns:1fr auto;}.school-row>*:not(:first-child):not(:last-child){display:none;}.prog-row{grid-template-columns:1fr auto;}.prog-row>*:not(:first-child):not(:last-child){display:none;}}
+@media(max-width:640px){.sidebar{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     ONBOARDING SCREEN
+══════════════════════════════ -->
+<div id="screen-onboarding" class="screen active">
+  <div class="disclaimer">
+    <span style="font-size:14px;flex-shrink:0">⚠</span>
+    <span><strong>Prototype mode:</strong> This is an interactive demo. No data you enter is stored, saved, or transmitted to any server. Integration connections are simulated.</span>
+  </div>
+
+  <!-- S1: Sign Up -->
+  <div id="ob-s1" class="ob-card">
+    <div class="logo-row"><div class="logo-dot"></div><div class="logo-mark">TriMetrics ECE</div><div class="logo-dot"></div></div>
+    <div class="step-label">STEP 1 OF 6</div>
+    <div class="progress-track"><div class="progress-fill" style="width:16%"></div></div>
+    <h2 class="ob-title">Create your account</h2>
+    <p class="ob-subtitle">Get started in a few minutes — no credit card required.</p>
+    <label class="ob-label">Work email</label>
+    <input class="ob-input" type="email" placeholder="you@organization.com">
+    <label class="ob-label">Password</label>
+    <input class="ob-input" type="password" placeholder="8+ characters">
+    <label class="ob-label">Confirm password</label>
+    <input class="ob-input" type="password" placeholder="Re-enter password">
+    <button class="btn-ob-primary" onclick="obGo('ob-s2')">Create account →</button>
+    <hr class="divider">
+    <p style="font-size:11px;color:var(--text-tertiary);text-align:center">By continuing you agree to the Terms of Service and Privacy Policy.</p>
+  </div>
+
+  <!-- S2: MFA -->
+  <div id="ob-s2" class="ob-card" style="display:none">
+    <div class="logo-row"><div class="logo-dot"></div><div class="logo-mark">TriMetrics ECE</div><div class="logo-dot"></div></div>
+    <div class="step-label">STEP 2 OF 6</div>
+    <div class="progress-track"><div class="progress-fill" style="width:33%"></div></div>
+    <h2 class="ob-title">Secure your account</h2>
+    <p class="ob-subtitle">Multi-factor authentication keeps your financial data safe. You can set this up later in Settings.</p>
+    <div class="mfa-opt" onclick="selMFA(this)"><div class="mfa-icon" style="background:var(--green-light)">🔐</div><div><div style="font-size:13px;font-weight:600">Set up MFA now</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Use an authenticator app like Google Authenticator or Duo</div></div></div>
+    <div class="mfa-opt" onclick="selMFA(this)"><div class="mfa-icon" style="background:var(--bg-secondary)">⏭</div><div><div style="font-size:13px;font-weight:600">Skip for now</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Enable MFA anytime from account settings</div></div></div>
+    <button class="btn-ob-primary" style="margin-top:14px" onclick="obGo('ob-s3')">Continue →</button>
+  </div>
+
+  <!-- S3: Questionnaire -->
+  <div id="ob-s3" class="ob-card" style="display:none">
+    <div class="logo-row"><div class="logo-dot"></div><div class="logo-mark">TriMetrics ECE</div><div class="logo-dot"></div></div>
+    <div class="step-label">STEP 3 OF 6</div>
+    <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
+    <h2 class="ob-title">Tell us about your work</h2>
+    <p class="ob-subtitle">Three quick questions to personalize your workspace.</p>
+    <div id="qq1">
+      <div class="q-num">Question 1 of 3</div>
+      <div class="q-text">Which best describes your role?</div>
+      <div class="q-hint">You can update this anytime in settings.</div>
+      <div class="q-opt" onclick="selQ(this,'role','owner')"><span class="opt-icon">🏠</span><div><div class="opt-label">Private owner</div><div class="opt-sub">I own and run my own daycare or child care center(s)</div></div></div>
+      <div class="q-opt" onclick="selQ(this,'role','franchise')"><span class="opt-icon">🏫</span><div><div class="opt-label">Franchise owner</div><div class="opt-sub">I own one or more franchise school locations</div></div></div>
+      <div class="q-opt" onclick="selQ(this,'role','corporate')"><span class="opt-icon">🏢</span><div><div class="opt-label">Corporate / enterprise</div><div class="opt-sub">I manage operations across a large network of centers</div></div></div>
+      <div class="q-opt" onclick="selQ(this,'role','ssp')"><span class="opt-icon">🤝</span><div><div class="opt-label">Shared Service Provider</div><div class="opt-sub">I provide fiscal, HR, or business support services to independently owned ECE programs</div></div></div>
+      <button class="btn-ob-primary" style="margin-top:8px" onclick="nextQ(2)">Next →</button>
+    </div>
+    <div id="qq2" style="display:none">
+      <div class="q-num">Question 2 of 3</div>
+      <div class="q-text" id="q2-text">How many centers or schools are you tracking?</div>
+      <div class="q-hint" id="q2-hint">Helps us set up the right portfolio view.</div>
+      <div class="pill-row" id="q2-pills">
+        <div class="pill" onclick="selPill(this,'count','1')">Just 1</div>
+        <div class="pill" onclick="selPill(this,'count','2-5')">2–5</div>
+        <div class="pill" onclick="selPill(this,'count','6-20')">6–20</div>
+        <div class="pill" onclick="selPill(this,'count','21-100')">21–100</div>
+        <div class="pill" onclick="selPill(this,'count','100+')">100+</div>
+      </div>
+      <button class="btn-ob-primary" onclick="nextQ(3)">Next →</button>
+      <button class="btn-ob-ghost" onclick="nextQ(1)">← Back</button>
+    </div>
+    <div id="qq3" style="display:none">
+      <div class="q-num">Question 3 of 3</div>
+      <div class="q-text">What's your biggest priority right now?</div>
+      <div class="q-hint">We'll surface the most relevant insights first.</div>
+      <div class="q-opt" onclick="selQ(this,'priority','enrollment')"><span class="opt-icon">📋</span><div><div class="opt-label">Filling seats</div><div class="opt-sub">Growing and maintaining full enrollment</div></div></div>
+      <div class="q-opt" onclick="selQ(this,'priority','revenue')"><span class="opt-icon">💰</span><div><div class="opt-label">Increasing revenue</div><div class="opt-sub">Improving revenue per child and rate strategy</div></div></div>
+      <div class="q-opt" onclick="selQ(this,'priority','collection')"><span class="opt-icon">📬</span><div><div class="opt-label">Collecting fees</div><div class="opt-sub">Reducing outstanding balances</div></div></div>
+      <div class="q-opt" onclick="selQ(this,'priority','subsidy')"><span class="opt-icon">🏛️</span><div><div class="opt-label">Maximizing subsidy capture</div><div class="opt-sub">Tracking and recovering subsidy & voucher reimbursements</div></div></div>
+      <div class="q-opt" onclick="selQ(this,'priority','all')"><span class="opt-icon">🔺</span><div><div class="opt-label">All three equally</div><div class="opt-sub">I want the full Iron Triangle picture</div></div></div>
+      <button class="btn-ob-primary" style="margin-top:8px" onclick="obGo('ob-s4')">Next →</button>
+      <button class="btn-ob-ghost" onclick="nextQ(2)">← Back</button>
+    </div>
+  </div>
+
+  <!-- S4: Integrations -->
+  <div id="ob-s4" class="ob-card" style="display:none">
+    <div class="logo-row"><div class="logo-dot"></div><div class="logo-mark">TriMetrics ECE</div><div class="logo-dot"></div></div>
+    <div class="step-label">STEP 4 OF 6</div>
+    <div class="progress-track"><div class="progress-fill" style="width:66%"></div></div>
+    <h2 class="ob-title">Connect your data</h2>
+    <p class="ob-subtitle">Link your existing tools so TriMetrics can pull the numbers automatically. You can add more later — or skip and enter data manually.</p>
+    <div id="int-connected-list"></div>
+    <div class="int-section-label">Accounting & finance</div>
+    <div class="int-grid">
+      <div class="int-card" id="ic-qbo" onclick="openIntModal('qbo','QuickBooks Online','🟢')"><div class="int-logo" style="background:#E8F5E9">🟢</div><div class="int-name">QuickBooks Online</div><div class="int-desc">Revenue, expenses, P&L</div><div class="int-tag tag-pop">Most popular</div></div>
+      <div class="int-card" id="ic-xero" onclick="openIntModal('xero','Xero','🔵')"><div class="int-logo" style="background:#E3F2FD">🔵</div><div class="int-name">Xero</div><div class="int-desc">Accounting & invoicing</div><div class="int-tag tag-acc">Accounting</div></div>
+      <div class="int-card" id="ic-sage" onclick="openIntModal('sage','Sage Intacct','🟠')"><div class="int-logo" style="background:#FFF3E0">🟠</div><div class="int-name">Sage Intacct</div><div class="int-desc">Multi-entity financials</div><div class="int-tag tag-acc">Accounting</div></div>
+      <div class="int-card" id="ic-wave" onclick="openIntModal('wave','Wave','🌊')"><div class="int-logo" style="background:#E8F5E9">🌊</div><div class="int-name">Wave</div><div class="int-desc">Free accounting for small operators</div><div class="int-tag tag-acc">Accounting</div></div>
+    </div>
+    <div class="int-section-label">ECE-specific platforms</div>
+    <div class="int-grid">
+      <div class="int-card" id="ic-procare" onclick="openIntModal('procare','Procare','🧡')"><div class="int-logo" style="background:#FFF3E0">🧡</div><div class="int-name">Procare</div><div class="int-desc">Enrollment, billing, attendance</div><div class="int-tag tag-ece">ECE platform</div></div>
+      <div class="int-card" id="ic-brightwheel" onclick="openIntModal('brightwheel','Brightwheel','☀️')"><div class="int-logo" style="background:#FFFDE7">☀️</div><div class="int-name">Brightwheel</div><div class="int-desc">Enrollment, tuition, reporting</div><div class="int-tag tag-ece">ECE platform</div></div>
+      <div class="int-card" id="ic-kindertracks" onclick="openIntModal('kindertracks','KinderTracks','📚')"><div class="int-logo" style="background:#EDE7F6">📚</div><div class="int-name">KinderTracks</div><div class="int-desc">Billing & family management</div><div class="int-tag tag-ece">ECE platform</div></div>
+      <div class="int-card" id="ic-himama" onclick="openIntModal('himama','HiMama','💛')"><div class="int-logo" style="background:#FFFDE7">💛</div><div class="int-name">HiMama</div><div class="int-desc">Family engagement & billing</div><div class="int-tag tag-ece">ECE platform</div></div>
+    </div>
+    <div class="int-section-label">Payroll & payments</div>
+    <div class="int-grid">
+      <div class="int-card" id="ic-gusto" onclick="openIntModal('gusto','Gusto','💜')"><div class="int-logo" style="background:#F3E5F5">💜</div><div class="int-name">Gusto</div><div class="int-desc">Payroll & labor costs</div><div class="int-tag tag-pay">Payroll</div></div>
+      <div class="int-card" id="ic-stripe" onclick="openIntModal('stripe','Stripe','💳')"><div class="int-logo" style="background:#EDE7F6">💳</div><div class="int-name">Stripe</div><div class="int-desc">Payment processing & fee data</div><div class="int-tag tag-pay">Payments</div></div>
+    </div>
+    <div id="int-modal" class="connect-modal" style="display:none">
+      <div class="connect-modal-title" style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:10px" id="int-modal-title">Connect</div>
+      <input class="connect-field" id="int-field1" placeholder="API key or Client ID">
+      <input class="connect-field" id="int-field2" type="password" placeholder="Secret / password">
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn-connect" onclick="doConnect()">Authorize connection</button>
+        <button style="font-size:12px;color:var(--text-tertiary);background:none;border:none;cursor:pointer;padding:8px;font-family:inherit" onclick="closeIntModal()">Cancel</button>
+      </div>
+      <div style="margin-top:9px;font-size:11px;color:var(--text-tertiary)">🔒 Read-only access only. TriMetrics never writes to your source data.</div>
+    </div>
+    <div class="int-section-label" style="margin-top:12px">Or enter data manually</div>
+    <div class="manual-opt" onclick="this.classList.toggle('selected')">
+      <span style="font-size:18px">📤</span>
+      <div><div style="font-size:13px;font-weight:600">Upload a CSV or enter data manually</div><div style="font-size:11px;color:var(--text-secondary);margin-top:1px">Import a spreadsheet or type in numbers directly after setup</div></div>
+    </div>
+    <button class="btn-ob-primary" style="margin-top:6px" onclick="obGo('ob-s5')">Continue →</button>
+    <button class="btn-ob-ghost" onclick="obGo('ob-s3');nextQ(3)">← Back</button>
+  </div>
+
+  <!-- S5: Loading -->
+  <div id="ob-s5" class="ob-card" style="display:none;text-align:center;padding:36px 32px">
+    <div class="logo-row"><div class="logo-dot"></div><div class="logo-mark">TriMetrics ECE</div><div class="logo-dot"></div></div>
+    <div class="spinner"></div>
+    <h2 class="ob-title" style="margin-bottom:6px">Building your workspace</h2>
+    <p style="font-size:13px;color:var(--text-secondary)">Hang tight — this only takes a moment.</p>
+    <div style="margin-top:20px;text-align:left">
+      <div class="lstep"><div class="lstep-dot done"></div><span>Account created</span></div>
+      <div class="lstep"><div class="lstep-dot done"></div><span>Persona configured</span></div>
+      <div class="lstep"><div class="lstep-dot active" id="ls3d"></div><span id="ls3t">Verifying integration connections...</span></div>
+      <div class="lstep"><div class="lstep-dot" id="ls4d"></div><span id="ls4t" style="color:var(--text-tertiary)">Pulling initial data from connected tools...</span></div>
+      <div class="lstep"><div class="lstep-dot" id="ls5d"></div><span id="ls5t" style="color:var(--text-tertiary)">Setting benchmark defaults...</span></div>
+      <div class="lstep"><div class="lstep-dot" id="ls6d"></div><span id="ls6t" style="color:var(--text-tertiary)">Activating AI insights engine...</span></div>
+      <div class="lstep"><div class="lstep-dot" id="ls7d"></div><span id="ls7t" style="color:var(--text-tertiary)">Preparing your dashboard...</span></div>
+    </div>
+  </div>
+
+  <!-- Workspace landings -->
+  <div id="ob-ws-owner" class="ob-card" style="display:none;padding:0;overflow:hidden;max-width:540px">
+    <div class="ws-topbar" style="background:var(--green-light);border-bottom:0.5px solid #9FE1CB">
+      <div><div style="font-size:15px;font-weight:600;color:#085041">Welcome to TriMetrics ECE 🎉</div><div style="font-size:12px;color:var(--green-dark);margin-top:2px">Your single-center workspace is ready.</div></div>
+      <span class="ws-tag" style="background:var(--green);color:white">Owner</span>
+    </div>
+    <div style="padding:20px">
+      <div id="owner-sync" class="sync-bar" style="display:none"><div class="sync-dot"></div><span>Syncing from <strong id="owner-sync-name"></strong> — first metrics will appear shortly.</span></div>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.6">Your dashboard is built around <strong>your center</strong> — all three Iron Triangle metrics front and center, with subsidy tracking and AI insights tuned to your benchmarks.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px">
+        <div class="ws-metric"><div class="ws-metric-label">Full enrollment</div><div class="ws-metric-val" style="color:var(--green)">—%</div></div>
+        <div class="ws-metric"><div class="ws-metric-label">Rev / child</div><div class="ws-metric-val">$—</div></div>
+        <div class="ws-metric"><div class="ws-metric-label">Fee collection</div><div class="ws-metric-val">—%</div></div>
+      </div>
+      <div style="background:#F5F0FE;border:0.5px solid #C4B5FD;border-radius:var(--radius-md);padding:10px 12px;font-size:12px;color:#4C1D95;margin-bottom:14px">🏛️ <strong>Subsidy tracking enabled</strong> — TriMetrics will flag enrolled children without a subsidy designation and track pending reimbursements separately from private pay.</div>
+      <button class="btn-ob-primary" onclick="launchDashboard('owner')">Go to my dashboard →</button>
+      <button class="btn-ob-ghost" onclick="restartOb()">← Start over (prototype)</button>
+    </div>
+  </div>
+
+  <div id="ob-ws-franchise" class="ob-card" style="display:none;padding:0;overflow:hidden;max-width:540px">
+    <div class="ws-topbar" style="background:var(--brand-light);border-bottom:0.5px solid #F5C4B3">
+      <div><div style="font-size:15px;font-weight:600;color:#4A1B0C">Welcome to TriMetrics ECE 🎉</div><div style="font-size:12px;color:var(--brand-dark);margin-top:2px">Your franchise portfolio workspace is ready.</div></div>
+      <span class="ws-tag" style="background:var(--brand);color:white">Franchise</span>
+    </div>
+    <div style="padding:20px">
+      <div id="franchise-sync" class="sync-bar" style="display:none"><div class="sync-dot"></div><span>Syncing from <strong id="franchise-sync-name"></strong> — first metrics will appear shortly.</span></div>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.6">Your dashboard shows your <strong>full school portfolio</strong> — compare all locations side by side with subsidy revenue split visible per school.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px">
+        <div class="ws-metric"><div class="ws-metric-label">Portfolio enrollment</div><div class="ws-metric-val" style="color:var(--brand)">—%</div></div>
+        <div class="ws-metric"><div class="ws-metric-label">Avg rev / child</div><div class="ws-metric-val">$—</div></div>
+        <div class="ws-metric"><div class="ws-metric-label">Avg fee coll.</div><div class="ws-metric-val">—%</div></div>
+      </div>
+      <div style="background:#F5F0FE;border:0.5px solid #C4B5FD;border-radius:var(--radius-md);padding:10px 12px;font-size:12px;color:#4C1D95;margin-bottom:14px">🏛️ <strong>Subsidy tracking enabled</strong> — revenue per child will show private pay vs subsidy split across all schools.</div>
+      <button class="btn-ob-primary" style="background:var(--brand)" onclick="launchDashboard('franchise')">Go to my dashboard →</button>
+      <button class="btn-ob-ghost" onclick="restartOb()">← Start over (prototype)</button>
+    </div>
+  </div>
+
+  <div id="ob-ws-corporate" class="ob-card" style="display:none;padding:0;overflow:hidden;max-width:540px">
+    <div class="ws-topbar" style="background:var(--purple-light);border-bottom:0.5px solid #CECBF6">
+      <div><div style="font-size:15px;font-weight:600;color:#26215C">Welcome to TriMetrics ECE 🎉</div><div style="font-size:12px;color:var(--purple);margin-top:2px">Your enterprise network workspace is ready.</div></div>
+      <span class="ws-tag" style="background:var(--purple);color:white">Enterprise</span>
+    </div>
+    <div style="padding:20px">
+      <div id="corporate-sync" class="sync-bar" style="display:none"><div class="sync-dot"></div><span>Syncing from <strong id="corporate-sync-name"></strong> — first metrics will appear shortly.</span></div>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.6">Your dashboard is built for <strong>network-level oversight</strong> — regional breakdowns, center-by-center drill-downs, and AI at scale.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px">
+        <div class="ws-metric"><div class="ws-metric-label">Network enrollment</div><div class="ws-metric-val" style="color:var(--purple)">—%</div></div>
+        <div class="ws-metric"><div class="ws-metric-label">Avg rev / child</div><div class="ws-metric-val">$—</div></div>
+        <div class="ws-metric"><div class="ws-metric-label">Centers at risk</div><div class="ws-metric-val" style="color:var(--red)">—</div></div>
+      </div>
+      <div style="background:#F5F0FE;border:0.5px solid #C4B5FD;border-radius:var(--radius-md);padding:10px 12px;font-size:12px;color:#4C1D95;margin-bottom:14px">🏛️ <strong>Subsidy tracking enabled</strong> — network revenue view will break out private pay, subsidy, and pending reimbursements across all regions.</div>
+      <button class="btn-ob-primary" style="background:var(--purple)" onclick="launchDashboard('corporate')">Go to my dashboard →</button>
+      <button class="btn-ob-ghost" onclick="restartOb()">← Start over (prototype)</button>
+    </div>
+  </div>
+
+  <div id="ob-ws-ssp" class="ob-card" style="display:none;padding:0;overflow:hidden;max-width:540px">
+    <div class="ws-topbar" style="background:var(--teal-light);border-bottom:0.5px solid #9FD4E1">
+      <div><div style="font-size:15px;font-weight:600;color:#0a3d4a">Welcome to TriMetrics ECE 🎉</div><div style="font-size:12px;color:var(--teal-dark);margin-top:2px">Your Shared Service Provider workspace is ready.</div></div>
+      <span class="ws-tag" style="background:var(--teal);color:white">SSP</span>
+    </div>
+    <div style="padding:20px">
+      <div id="ssp-sync" class="sync-bar" style="display:none;color:var(--teal);background:var(--teal-light)"><div class="sync-dot" style="background:var(--teal)"></div><span>Syncing from <strong id="ssp-sync-name"></strong> — first program metrics will appear shortly.</span></div>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.6">Your dashboard is built for <strong>service delivery oversight</strong> — track Iron Triangle health across every program you support, flag who needs intervention, and monitor subsidy capture portfolio-wide.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px">
+        <div class="ws-metric"><div class="ws-metric-label">Programs supported</div><div class="ws-metric-val" style="color:var(--teal)">28</div></div>
+        <div class="ws-metric"><div class="ws-metric-label">Avg enrollment</div><div class="ws-metric-val">—%</div></div>
+        <div class="ws-metric"><div class="ws-metric-label">Subsidy pending</div><div class="ws-metric-val" style="color:#6B21A8">$—</div></div>
+      </div>
+      <div style="background:#F5F0FE;border:0.5px solid #C4B5FD;border-radius:var(--radius-md);padding:10px 12px;font-size:12px;color:#4C1D95;margin-bottom:14px">🏛️ <strong>Subsidy tracking is central to your workspace</strong> — you'll see private pay vs subsidy split, pending reimbursement flags, and uncaptured subsidy opportunities across all programs you support.</div>
+      <button class="btn-ob-primary" style="background:var(--teal)" onclick="launchDashboard('ssp')">Go to my dashboard →</button>
+      <button class="btn-ob-ghost" onclick="restartOb()">← Start over (prototype)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     DASHBOARD SCREEN
+══════════════════════════════ -->
+<div id="screen-dashboard" class="screen">
+  <div class="sidebar" id="db-sidebar">
+    <div class="logo">
+      <div style="font-size:15px;font-weight:600" id="db-logo-name">TriMetrics ECE</div>
+      <div style="font-size:10px;color:var(--text-secondary);margin-top:2px" id="db-logo-sub">Dashboard</div>
+    </div>
+    <div class="nav" id="db-nav"></div>
+    <div class="footer-user">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar" id="db-avatar">TM</div>
+        <div>
+          <div style="font-size:12px;font-weight:600" id="db-user-name">User</div>
+          <div style="font-size:10px;color:var(--text-tertiary)" id="db-user-role">Dashboard</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div style="font-size:16px;font-weight:600" id="db-page-title">Overview</div>
+        <div style="font-size:11px;color:var(--text-tertiary);margin-top:2px" id="db-page-sub"></div>
+      </div>
+      <div class="topbar-right">
+        <div class="period-selector">
+          <div class="period-btn" onclick="setPeriod(this)">Month</div>
+          <div class="period-btn active" onclick="setPeriod(this)">Quarter</div>
+          <div class="period-btn" onclick="setPeriod(this)">Year</div>
+        </div>
+        <button class="btn" onclick="openExport()">Export PDF</button>
+        <button class="btn" onclick="openExport()">Export CSV</button>
+        <button class="btn btn-ai" id="db-ai-btn" onclick="toggleAI()">AI Insights ✦</button>
+        <button class="btn" onclick="backToOnboarding()" style="font-size:11px;color:var(--text-tertiary)">← Switch account</button>
+      </div>
+    </div>
+    <div class="content" id="db-content"></div>
+  </div>
+</div>
+
+<!-- AI Panel -->
+<div class="ai-panel" id="ai-panel">
+  <div class="ai-hdr">
+    <div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span>✦</span> AI Insights</div>
+    <button style="font-size:18px;cursor:pointer;color:var(--text-tertiary);background:none;border:none;line-height:1" onclick="toggleAI()">✕</button>
+  </div>
+  <div class="ai-msgs" id="ai-msgs"></div>
+  <div class="ai-suggs" id="ai-suggs"></div>
+  <div class="ai-in-row">
+    <input class="ai-input" id="ai-input" placeholder="Ask about your data..." onkeydown="if(event.key==='Enter')sendAI()">
+    <button class="ai-send" id="ai-send-btn" onclick="sendAI()">→</button>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay hidden" id="export-modal">
+  <div class="modal-box">
+    <div style="font-size:16px;font-weight:600;margin-bottom:6px">Export & Share</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">Choose how you'd like to export your report.</div>
+    <div class="exp-opt" onclick="selExp(this)"><div class="exp-ico" style="background:#FCEBEB">📄</div><div><div style="font-size:13px;font-weight:600">Export as PDF</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Full dashboard with charts — great for presentations</div></div></div>
+    <div class="exp-opt" onclick="selExp(this)"><div class="exp-ico" style="background:#EAF3DE">📊</div><div><div style="font-size:13px;font-weight:600">Export as CSV</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Raw data — import into Excel or Google Sheets</div></div></div>
+    <div class="exp-opt" onclick="selExp(this)"><div class="exp-ico" style="background:#E6F1FB">🔗</div><div><div style="font-size:13px;font-weight:600">Share live report link</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Send a view-only link to stakeholders or funders</div></div></div>
+    <input class="share-input" placeholder="Add email address to share with...">
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeExport()">Cancel</button>
+      <button class="btn-confirm" id="exp-confirm-btn" onclick="confirmExport()">Export now</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ────────────────────────────────
+   ONBOARDING LOGIC
+──────────────────────────────── */
+const ob={role:null,count:null,priority:null};
+const intConnected={};
+let activeIntId=null,currentPersona=null,dbChartsBuilt={},detailChartInst=null,currentSelSchool=null;
+
+function obGo(id){
+  document.querySelectorAll('#screen-onboarding>div').forEach(d=>d.style.display='none');
+  const el=document.getElementById(id);
+  if(el){el.style.display='';window.scrollTo(0,0);}
+  if(id==='ob-s5')startLoading();
+}
+function selMFA(el){document.querySelectorAll('.mfa-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');}
+function selQ(el,key,val){
+  el.parentElement.querySelectorAll('.q-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');ob[key]=val;
+  // Adapt Q2 text for SSP
+  if(key==='role'&&val==='ssp'){
+    document.getElementById('q2-text').textContent='How many programs do you provide services to?';
+    document.getElementById('q2-hint').textContent='This helps us set up the right program portfolio view.';
+    const pills=document.getElementById('q2-pills');
+    pills.innerHTML='<div class="pill" onclick="selPill(this,\'count\',\'1-5\')">1–5</div><div class="pill" onclick="selPill(this,\'count\',\'6-15\')">6–15</div><div class="pill" onclick="selPill(this,\'count\',\'16-50\')">16–50</div><div class="pill" onclick="selPill(this,\'count\',\'51-150\')">51–150</div><div class="pill" onclick="selPill(this,\'count\',\'150+\')">150+</div>';
+  } else if(key==='role'){
+    document.getElementById('q2-text').textContent='How many centers or schools are you tracking?';
+    document.getElementById('q2-hint').textContent='Helps us set up the right portfolio view.';
+    const pills=document.getElementById('q2-pills');
+    pills.innerHTML='<div class="pill" onclick="selPill(this,\'count\',\'1\')">Just 1</div><div class="pill" onclick="selPill(this,\'count\',\'2-5\')">2–5</div><div class="pill" onclick="selPill(this,\'count\',\'6-20\')">6–20</div><div class="pill" onclick="selPill(this,\'count\',\'21-100\')">21–100</div><div class="pill" onclick="selPill(this,\'count\',\'100+\')">100+</div>';
+  }
+}
+function selPill(el,key,val){el.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');ob[key]=val;}
+function nextQ(n){document.querySelectorAll('[id^="qq"]').forEach(b=>b.style.display='none');document.getElementById('qq'+n).style.display='';}
+function openIntModal(id,name,icon){if(intConnected[id])return;activeIntId=id;document.getElementById('int-modal-title').textContent='Connect '+name;document.getElementById('int-field1').value='';document.getElementById('int-field2').value='';document.getElementById('int-modal').style.display='';document.getElementById('int-modal').scrollIntoView({behavior:'smooth',block:'nearest'});}
+function closeIntModal(){document.getElementById('int-modal').style.display='none';activeIntId=null;}
+function doConnect(){
+  if(!activeIntId)return;
+  const card=document.getElementById('ic-'+activeIntId);
+  const name=card.querySelector('.int-name').textContent;
+  const icon=card.querySelector('.int-logo').textContent.trim();
+  intConnected[activeIntId]={name,icon};
+  card.classList.add('connected');
+  const badge=document.createElement('div');badge.className='check-badge';
+  badge.innerHTML='<svg viewBox="0 0 10 10" fill="none" width="10" height="10"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  card.appendChild(badge);renderConnectedList();closeIntModal();
+}
+function renderConnectedList(){
+  const list=document.getElementById('int-connected-list');const keys=Object.keys(intConnected);
+  if(!keys.length){list.innerHTML='';return;}
+  let h='<div class="int-section-label">Connected ('+keys.length+')</div>';
+  keys.forEach(k=>{const c=intConnected[k];h+=`<div class="connected-row"><div class="connected-icon">${c.icon}</div><div style="flex:1;font-size:13px;font-weight:600">${c.name}</div><div style="font-size:11px;color:var(--green)">✓ Authorized</div></div>`;});
+  list.innerHTML=h;
+}
+function getPersona(){
+  const r=ob.role,c=ob.count;
+  if(r==='ssp')return'ssp';
+  if(r==='corporate'||c==='100+'||c==='21-100')return'corporate';
+  if(r==='franchise'||c==='6-20'||c==='2-5')return'franchise';
+  return'owner';
+}
+function startLoading(){
+  const hasInt=Object.keys(intConnected).length>0;
+  const steps=[
+    {d:'ls3d',t:'ls3t',done:'Integration connections verified'},
+    {d:'ls4d',t:'ls4t',done:hasInt?'Initial data pull complete':'Manual entry mode enabled'},
+    {d:'ls5d',t:'ls5t',done:'Benchmark defaults applied'},
+    {d:'ls6d',t:'ls6t',done:'AI insights engine activated'},
+    {d:'ls7d',t:'ls7t',done:'Dashboard ready'}
+  ];
+  steps.forEach((s,i)=>{
+    setTimeout(()=>{
+      if(i>0){const prev=steps[i-1];const pd=document.getElementById(prev.d);if(pd){pd.classList.remove('active');pd.classList.add('done');}const pt=document.getElementById(prev.t);if(pt){pt.textContent=prev.done;pt.style.color='';}}
+      const d=document.getElementById(s.d);if(d)d.classList.add('active');
+      const t=document.getElementById(s.t);if(t)t.style.color='';
+    },i*800);
+  });
+  setTimeout(()=>{
+    const last=steps[steps.length-1];
+    const d=document.getElementById(last.d);if(d){d.classList.remove('active');d.classList.add('done');}
+    const t=document.getElementById(last.t);if(t)t.textContent=last.done;
+    const persona=getPersona();
+    document.querySelectorAll('#screen-onboarding>div').forEach(d=>d.style.display='none');
+    const ws=document.getElementById('ob-ws-'+persona);if(ws){ws.style.display='';window.scrollTo(0,0);}
+    const names=Object.values(intConnected).map(c=>c.name);
+    if(names.length){const sb=document.getElementById(persona+'-sync');const sn=document.getElementById(persona+'-sync-name');if(sb&&sn){sn.textContent=names.join(', ');sb.style.display='flex';}}
+  },steps.length*800+600);
+}
+function launchDashboard(persona){
+  currentPersona=persona;dbChartsBuilt={};detailChartInst=null;currentSelSchool=null;
+  setupDashboard(persona);
+  document.getElementById('screen-onboarding').classList.remove('active');
+  const ds=document.getElementById('screen-dashboard');ds.classList.add('active');ds.style.display='flex';
+}
+function backToOnboarding(){
+  document.getElementById('screen-dashboard').classList.remove('active');document.getElementById('screen-dashboard').style.display='none';
+  document.getElementById('screen-onboarding').classList.add('active');document.getElementById('ai-panel').classList.remove('open');restartOb();
+}
+function restartOb(){
+  ob.role=null;ob.count=null;ob.priority=null;Object.keys(intConnected).forEach(k=>delete intConnected[k]);
+  document.querySelectorAll('#screen-onboarding>div').forEach(d=>d.style.display='none');
+  document.getElementById('ob-s1').style.display='';
+  document.querySelectorAll('.q-opt,.mfa-opt,.pill,.manual-opt').forEach(o=>o.classList.remove('selected'));
+  document.getElementById('int-connected-list').innerHTML='';
+  document.querySelectorAll('.int-card').forEach(c=>{c.classList.remove('connected');c.style.pointerEvents='';c.style.opacity='1';const b=c.querySelector('.check-badge');if(b)b.remove();});
+  document.getElementById('int-modal').style.display='none';
+  ['ls3d','ls4d','ls5d','ls6d','ls7d'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('done','active');}});
+  const lt={ls3t:'Verifying integration connections...',ls4t:'Pulling initial data from connected tools...',ls5t:'Setting benchmark defaults...',ls6t:'Activating AI insights engine...',ls7t:'Preparing your dashboard...'};
+  Object.entries(lt).forEach(([id,txt])=>{const el=document.getElementById(id);if(el){el.textContent=txt;el.style.color='var(--text-tertiary)';}});
+  document.getElementById('ls3d').classList.add('active');document.getElementById('ls3t').style.color='';
+  ['owner','franchise','corporate','ssp'].forEach(p=>{const s=document.getElementById(p+'-sync');if(s)s.style.display='none';});
+  document.querySelectorAll('[id^="qq"]').forEach(b=>b.style.display='none');document.getElementById('qq1').style.display='';
+  // reset Q2 to default
+  document.getElementById('q2-text').textContent='How many centers or schools are you tracking?';
+  document.getElementById('q2-hint').textContent='Helps us set up the right portfolio view.';
+  document.getElementById('q2-pills').innerHTML='<div class="pill" onclick="selPill(this,\'count\',\'1\')">Just 1</div><div class="pill" onclick="selPill(this,\'count\',\'2-5\')">2–5</div><div class="pill" onclick="selPill(this,\'count\',\'6-20\')">6–20</div><div class="pill" onclick="selPill(this,\'count\',\'21-100\')">21–100</div><div class="pill" onclick="selPill(this,\'count\',\'100+\')">100+</div>';
+  window.scrollTo(0,0);
+}
+
+/* ────────────────────────────────
+   DASHBOARD SETUP
+──────────────────────────────── */
+const PERSONAS={
+  owner:{
+    color:'#1D9E75',colorLight:'#E1F5EE',colorDark:'#085041',
+    logoSub:'1 Center · Owner',userName:'Alex K.',userRole:'Center Owner',
+    avatarBg:'#E1F5EE',avatarColor:'#085041',avatarText:'AK',
+    pageSubDefault:'1 center · Q1 2026 · Benchmarks: 90% enrollment / 97% fee coll.',
+    aiWelcome:"Hi Alex! Your center is performing well — enrollment at 92% is above your 90% benchmark. <strong>Fee collection at 94%</strong> and your <strong>subsidy pending balance of $840</strong> are your two main opportunities this quarter.",
+    aiSuggs:['How do I improve fee collection?','What subsidy am I missing?','Am I on track for Q2?','Show me my enrollment breakdown'],
+    aiResponses:{'How do I improve fee collection?':"Your fee collection is at 94%, just 3 points shy of your 97% benchmark — that's about $380/month recoverable.\n\nTop actions: (1) Enroll more families in auto-pay at signup. (2) Move to weekly reminder cadence. (3) Call — don't email — families over 14 days overdue. Calls convert at 3× the rate.",'What subsidy am I missing?':"You have $840 in subsidy reimbursements pending — 2 children whose voucher paperwork hasn't been filed this month.\n\nAlso, 3 enrolled children have no subsidy designation on file. Based on enrollment demographics, at least 1–2 likely qualify for state or county vouchers. Running an eligibility screen could recover $400–$600/month in uncaptured subsidy revenue.",'Am I on track for Q2?':"Yes — at current pacing you'll hit 95% enrollment by May. Your waitlist has 4 infants. Consider a June cohort intake to capture that demand before families commit elsewhere.",'Show me my enrollment breakdown':"Infant room: 100% (full, 3 on waitlist)\nToddler room: 93% (1 open seat)\nPre-K: 96% (1 open seat)\nAfter-school: 88% (3 open seats)\n\nYour after-school program has the most room to grow."},
+    navSections:[{label:'Overview',items:[{id:'overview',label:'Iron Triangle',color:'#1D9E75'},{id:'projections',label:'Trends & Projections'},{id:'reports',label:'Reports'}]},{label:'Metrics',items:[{id:'enrollment',label:'Full Enrollment',color:'#1D9E75'},{id:'revenue',label:'Revenue / Child',color:'#EF9F27'},{id:'collection',label:'Full Fee Collection',color:'#1D9E75'},{id:'subsidy',label:'Subsidy Tracking',color:'#8B5CF6'}]},{label:'Tools',items:[{id:'benchmarks',label:'Benchmark Settings'},{id:'export',label:'Export & Share'}]}],
+    views:buildOwnerViews
+  },
+  franchise:{
+    color:'#D85A30',colorLight:'#FAECE7',colorDark:'#993C1D',
+    logoSub:'Franchise · 5 Schools',userName:'Taylor M.',userRole:'Franchise Owner · 5 schools',
+    avatarBg:'#FAECE7',avatarColor:'#993C1D',avatarText:'TM',
+    pageSubDefault:'5 schools · Q1 2026 · Benchmarks: 90% enrollment / 97% fee coll. / $1,300 rev',
+    aiWelcome:"Hi Taylor! <strong>Thornton is your biggest risk</strong> — below all three benchmarks for two consecutive quarters. Also flagging: <strong>$2,840 in pending subsidy reimbursements</strong> across 3 schools that haven't been filed this month.",
+    aiSuggs:['What should I do about Thornton?','Which schools have subsidy gaps?','How do I improve fee collection?','What is my Q2 revenue forecast?'],
+    aiResponses:{'What should I do about Thornton?':"Thornton's been below all three benchmarks for two quarters — that pattern points to a leadership or pipeline issue.\n\nI'd recommend: (1) Director review this week. (2) Audit the inquiry-to-enrollment funnel. (3) Check for staff turnover affecting parent confidence. Goal: 83%+ enrollment by April.",'Which schools have subsidy gaps?':"Three schools have unfiled subsidy reimbursements this month:\n\n• Thornton: $1,420 pending (3 children, vouchers expired)\n• Westminster: $980 pending (2 children, paperwork incomplete)\n• Arvada: $440 pending (1 child, redetermination overdue)\n\nTotal recoverable: $2,840. Thornton's subsidy gap compounds its already-weak revenue/child number.",'How do I improve fee collection?':"Standardize Lakewood's billing system portfolio-wide — their 97% rate comes from: weekly auto-reminders, auto-pay enrollment at signup, and a 7-day follow-up call protocol.",'What is my Q2 revenue forecast?':"At current trajectory, Q2 portfolio revenue is projected at ~$361K/month — up $13K from Q1. Assumes: Thornton recovers to 83%, Westminster applies a rate adjustment, fee collection improves to 95.8%, and all pending subsidy reimbursements are filed."},
+    navSections:[{label:'My Portfolio',items:[{id:'overview',label:'Portfolio Overview',color:'#D85A30'},{id:'schools',label:'School Comparison'},{id:'projections',label:'Trends & Projections'}]},{label:'Iron Triangle',items:[{id:'enrollment',label:'Full Enrollment',color:'#1D9E75'},{id:'revenue',label:'Revenue / Child',color:'#EF9F27'},{id:'collection',label:'Full Fee Collection',color:'#1D9E75'},{id:'subsidy',label:'Subsidy Tracking',color:'#8B5CF6'}]},{label:'Tools',items:[{id:'benchmarks',label:'Benchmark Settings'},{id:'export',label:'Export & Share'}]}],
+    views:buildFranchiseViews
+  },
+  corporate:{
+    color:'#534AB7',colorLight:'#EEEDFE',colorDark:'#3C3489',
+    logoSub:'Enterprise · 80 Centers',userName:'Jordan R.',userRole:'Corporate · VP Operations',
+    avatarBg:'#EEEDFE',avatarColor:'#534AB7',avatarText:'JR',
+    pageSubDefault:'80 centers across 4 regions · Q1 2026',
+    aiWelcome:"Hi Jordan! Network enrollment is trending toward 90% for the first time. <strong>West region needs attention.</strong> Also: <strong>$48K in subsidy reimbursements</strong> are sitting unfiled across the Southeast portfolio — that's a recoverable revenue gap hiding inside your fee collection numbers.",
+    aiSuggs:['What should I do about the West region?','Tell me about the subsidy gap','Which centers are at risk?','What is the network Q2 forecast?'],
+    aiResponses:{'What should I do about the West region?':"6 centers below 82% enrollment for 2+ consecutive months — threshold for systemic vs seasonal dip.\n\nActions: (1) Regional director review of all 6 sites. (2) Audit marketing spend per center — West has lowest digital presence. (3) Compare inquiry-to-tour conversion vs Northeast.",'Tell me about the subsidy gap':"$48K in subsidy reimbursements are unfiled across the Southeast portfolio. This is suppressing the region's effective revenue/child by an estimated $22/month per child.\n\nAdditionally, network-wide eligibility screening suggests 8–12% of enrolled children may qualify for subsidies they're not currently receiving. Running a systematic eligibility audit could add $60–80K/month in recaptured revenue.",'Which centers are at risk?':"12 centers are currently below 2+ benchmarks. West region accounts for 6. Top 3 by revenue impact: West-7 ($4,200/month below target), Southeast-4 ($3,800/month), West-12 ($3,400/month).",'What is the network Q2 forecast?':"Network hits 90.1% enrollment by June at current trajectory — the first time above 90%. Fee collection projected at 94.2%. Subsidy reimbursement filing is the fastest lever to improve effective revenue/child this quarter."},
+    navSections:[{label:'Network',items:[{id:'overview',label:'Network Overview',color:'#534AB7'},{id:'regions',label:'Region Drill-down'},{id:'comparison',label:'Center Comparison'}]},{label:'Iron Triangle',items:[{id:'enrollment',label:'Full Enrollment',color:'#1D9E75'},{id:'revenue',label:'Revenue / Child',color:'#EF9F27'},{id:'collection',label:'Full Fee Collection',color:'#1D9E75'},{id:'subsidy',label:'Subsidy Tracking',color:'#8B5CF6'}]},{label:'Reports',items:[{id:'benchmarks',label:'Benchmarks'},{id:'export',label:'Export & Share'}]}],
+    views:buildCorporateViews
+  },
+  ssp:{
+    color:'#1D7A9E',colorLight:'#E1F0F5',colorDark:'#0F526E',
+    logoSub:'Shared Service Provider · 28 Programs',userName:'Morgan L.',userRole:'SSP Director · 28 programs',
+    avatarBg:'#E1F0F5',avatarColor:'#0F526E',avatarText:'ML',
+    pageSubDefault:'28 programs · Q1 2026 · Service delivery overview',
+    aiWelcome:"Hi Morgan! You're supporting 28 independently owned programs. <strong>6 programs need intervention</strong> this quarter — below benchmark on 2+ metrics. <strong>$24,600 in subsidy reimbursements</strong> across your portfolio are currently unfiled or at risk of lapsing. That's your highest-impact action this week.",
+    aiSuggs:['Which programs need intervention?','Show me the subsidy filing risk','How is portfolio enrollment trending?','Which programs are self-sufficient?'],
+    aiResponses:{'Which programs need intervention?':"6 programs are below benchmark on 2+ Iron Triangle metrics:\n\n• Sunrise Learning Center — 72% enrollment, 86% fee coll.\n• Little Explorers (East) — 78% enrollment, $1,080 rev/child\n• Community Kids Cooperative — fee coll. 84%, subsidy gap $3,200\n• Bright Beginnings Westside — enrollment 74%, all metrics declining\n• Northside CDC — revenue/child $1,020, rate not updated 2 years\n• Rainbow Bridge — 81% enrollment, subsidy pending $4,800\n\nRecommend scheduling check-ins with all 6 directors this week.",'Show me the subsidy filing risk':"$24,600 in subsidy reimbursements are either unfiled or within 30 days of lapsing across your portfolio:\n\n• $8,400 — 4 programs with expired vouchers (urgent, file within 7 days)\n• $9,200 — 6 programs with incomplete redetermination paperwork\n• $7,000 — 5 programs where children likely qualify but have never been screened\n\nThe last category is the biggest long-term opportunity — a portfolio-wide eligibility screening could surface $15–25K/month in permanent additional revenue.",'How is portfolio enrollment trending?':"Portfolio average enrollment is 87.4% — up from 85.1% last quarter. 19 of 28 programs are at or above the 85% benchmark. The 9 below-benchmark programs are concentrated among newer programs (under 3 years old) and rural locations.",'Which programs are self-sufficient?':"12 programs are above benchmark on all three Iron Triangle metrics and have filed all subsidy reimbursements on time for 3+ consecutive quarters. These are your 'anchor programs' — consider using them as peer mentors for struggling programs in your portfolio."},
+    navSections:[{label:'Portfolio',items:[{id:'overview',label:'Portfolio Overview',color:'#1D7A9E'},{id:'programs',label:'Program Health'},{id:'intervention',label:'Intervention Queue'}]},{label:'Iron Triangle',items:[{id:'enrollment',label:'Enrollment Health',color:'#1D9E75'},{id:'revenue',label:'Revenue / Child',color:'#EF9F27'},{id:'collection',label:'Fee Collection',color:'#1D9E75'},{id:'subsidy',label:'Subsidy Tracking',color:'#8B5CF6'}]},{label:'Tools',items:[{id:'benchmarks',label:'Benchmark Settings'},{id:'reports',label:'Reports & Grants'},{id:'export',label:'Export & Share'}]}],
+    views:buildSSPViews
+  }
+};
+
+function setupDashboard(persona){
+  const p=PERSONAS[persona];
+  document.getElementById('db-logo-sub').textContent=p.logoSub;
+  document.getElementById('db-page-sub').textContent=p.pageSubDefault;
+  const av=document.getElementById('db-avatar');av.textContent=p.avatarText;av.style.background=p.avatarBg;av.style.color=p.avatarColor;
+  document.getElementById('db-user-name').textContent=p.userName;
+  document.getElementById('db-user-role').textContent=p.userRole;
+  document.getElementById('db-ai-btn').style.background=p.color;
+  document.getElementById('ai-send-btn').style.background=p.color;
+  let navHtml='';
+  p.navSections.forEach(sec=>{
+    navHtml+=`<div class="nav-section">${sec.label}</div>`;
+    sec.items.forEach(item=>{navHtml+=`<div class="nav-item" id="nav-${item.id}" onclick="switchView('${item.id}',this)" style="border-left-color:transparent"><span class="nd" style="background:${item.color||'var(--border-med)'}"></span> ${item.label}</div>`;});
+  });
+  document.getElementById('db-nav').innerHTML=navHtml;
+  document.getElementById('db-content').innerHTML=p.views();
+  const msgs=document.getElementById('ai-msgs');msgs.innerHTML=`<div class="ai-msg bot">${p.aiWelcome}</div>`;
+  const suggs=document.getElementById('ai-suggs');suggs.innerHTML=p.aiSuggs.map(s=>`<button class="ai-sugg" onclick="askAI(this,'${s.replace(/'/g,"\\'")}',PERSONAS['${persona}'].aiResponses)">${s}</button>`).join('');
+  switchView('overview',document.getElementById('nav-overview'));
+  setTimeout(buildAllCharts,120);
+}
+
+function switchView(id,el){
+  document.getElementById('db-content').querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const v=document.getElementById('view-'+id);if(v)v.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{n.classList.remove('active');n.style.borderLeftColor='transparent';});
+  if(el){el.classList.add('active');el.style.borderLeftColor=PERSONAS[currentPersona].color;}
+  const titles={overview:'Overview',programs:'Program Health',intervention:'Intervention Queue',schools:'School Comparison',regions:'Region Drill-down',comparison:'Center Comparison',projections:'Trends & Projections',enrollment:'Full Enrollment',revenue:'Revenue / Child',collection:'Full Fee Collection',subsidy:'Subsidy Tracking',benchmarks:'Benchmark Settings',reports:'Reports & Grants',export:'Export & Share'};
+  document.getElementById('db-page-title').textContent=titles[id]||id;
+  if(id==='export'){openExport();return;}
+  setTimeout(buildAllCharts,50);
+  if(currentSelSchool)closeDetail();
+}
+
+function setPeriod(btn){document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function openExport(){document.getElementById('export-modal').classList.remove('hidden');}
+function closeExport(){document.getElementById('export-modal').classList.add('hidden');}
+function selExp(el){document.querySelectorAll('.exp-opt').forEach(o=>o.style.borderColor='');el.style.borderColor=PERSONAS[currentPersona]?.color||'#1D9E75';}
+function confirmExport(){closeExport();showToast('Report exported successfully!');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function toggleAI(){document.getElementById('ai-panel').classList.toggle('open');}
+function askAI(btn,q,responses){document.getElementById('ai-suggs').style.display='none';addAIMsg(q,'user');setTimeout(()=>addAIMsg(responses[q]||"Based on your data, your biggest lever is likely in the metric furthest from benchmark. Want me to model a specific improvement scenario?",'bot'),800);}
+function sendAI(){const inp=document.getElementById('ai-input');const v=inp.value.trim();if(!v)return;document.getElementById('ai-suggs').style.display='none';addAIMsg(v,'user');inp.value='';setTimeout(()=>addAIMsg("Great question. Based on your current portfolio data, I'd focus on the metric furthest from benchmark as your highest-leverage action. Want me to run a scenario analysis?",'bot'),900);}
+function addAIMsg(text,type){const msgs=document.getElementById('ai-msgs');const div=document.createElement('div');div.className='ai-msg '+type;if(type==='user'){div.style.background=PERSONAS[currentPersona]?.colorLight||'#E1F5EE';div.style.color='#1a1a18';div.style.alignSelf='flex-end';}div.innerHTML=text.replace(/\n/g,'<br>');msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}
+
+/* School detail */
+const schoolData={
+  lakewood:{name:'Bright Futures — Lakewood',cap:'68/72',enroll:94,rev:1340,fee:97,subsidy:260,trend:[90,91,92,93,92,94,94]},
+  arvada:{name:'Bright Futures — Arvada',cap:'54/60',enroll:90,rev:1300,fee:95,subsidy:220,trend:[86,87,88,89,88,90,90]},
+  westminster:{name:'Bright Futures — Westminster',cap:'48/55',enroll:87,rev:1240,fee:93,subsidy:180,trend:[84,85,85,86,86,87,87]},
+  thornton:{name:'Bright Futures — Thornton',cap:'41/55',enroll:75,rev:1140,fee:88,subsidy:140,trend:[82,80,79,78,77,76,75]},
+  broomfield:{name:'Bright Futures — Broomfield',cap:'58/64',enroll:91,rev:1310,fee:96,subsidy:240,trend:[87,88,89,89,90,91,91]}
+};
+function selectSchool(key,row){
+  if(currentSelSchool===key){closeDetail();return;}currentSelSchool=key;
+  document.querySelectorAll('.school-row').forEach(r=>r.classList.remove('sel'));row.classList.add('sel');
+  const d=schoolData[key];
+  const ec=d.enroll>=90?'var(--green)':d.enroll>=85?'var(--amber)':'var(--red)';
+  const fc=d.fee>=97?'var(--green)':d.fee>=93?'var(--amber)':'var(--red)';
+  const rc=d.rev>=1300?'var(--green)':d.rev>=1200?'var(--amber)':'var(--red)';
+  document.getElementById('detail-name').textContent=d.name;
+  document.getElementById('detail-sub').textContent=d.cap+' capacity';
+  const privatePay=d.rev-d.subsidy;const subPct=Math.round(d.subsidy/d.rev*100);
+  document.getElementById('detail-metrics').innerHTML=`
+    <div class="ws-metric"><div class="ws-metric-label">Enrollment</div><div class="ws-metric-val" style="color:${ec}">${d.enroll}%</div></div>
+    <div class="ws-metric"><div class="ws-metric-label">Fee Coll.</div><div class="ws-metric-val" style="color:${fc}">${d.fee}%</div></div>
+    <div class="ws-metric"><div class="ws-metric-label">Rev / Child</div><div class="ws-metric-val" style="color:${rc}">$${d.rev.toLocaleString()}</div>
+      <div class="sub-split" style="margin-top:5px"><div class="sub-private" style="width:${100-subPct}%"></div><div class="sub-subsidy" style="width:${subPct}%"></div></div>
+      <div class="sub-labels"><span><span class="sub-dot" style="background:var(--green)"></span>$${privatePay} private</span><span><span class="sub-dot" style="background:#8B5CF6"></span>$${d.subsidy} subsidy</span></div>
+    </div>`;
+  document.getElementById('school-detail').style.display='';
+  if(detailChartInst)detailChartInst.destroy();
+  detailChartInst=new Chart(document.getElementById('detailChart'),{type:'line',data:{labels:['Sep','Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{label:'Enrollment %',data:d.trend,borderColor:'var(--brand)',backgroundColor:'rgba(216,90,48,0.07)',fill:true,tension:0.4,pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}},y:{min:65,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}}}});
+  document.getElementById('school-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeDetail(){document.getElementById('school-detail').style.display='none';document.querySelectorAll('.school-row').forEach(r=>r.classList.remove('sel'));currentSelSchool=null;}
+
+/* ────────────────────────────────
+   CHART BUILDING
+──────────────────────────────── */
+const schools=['Lakewood','Arvada','Westminster','Thornton','Broomfield'];
+const enD=[94,90,87,75,91],fcD=[97,95,93,88,96],rvD=[103,100,95,88,101];
+
+function buildAllCharts(){
+  const defs={
+    'ownerTrendChart':()=>new Chart(document.getElementById('ownerTrendChart'),{type:'line',data:{labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{label:'Enrollment',data:[84,86,87,89,88,90,91,92,92,91,92,92],borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.4,pointRadius:2,borderWidth:2},{label:'Fee Collection',data:[90,91,92,91,93,94,93,94,93,94,94,94],borderColor:'#EF9F27',backgroundColor:'transparent',tension:0.4,pointRadius:2,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}},y:{min:80,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}}}}),
+    'ownerDonutChart':()=>new Chart(document.getElementById('ownerDonutChart'),{type:'doughnut',data:{labels:['Infant (100%)','Toddler (93%)','Pre-K (96%)','After School (88%)'],datasets:[{data:[100,93,96,88],backgroundColor:['#1D9E75','#5DCAA5','#EF9F27','#FAC775'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10}}}}}),
+    'ownerSubChart':()=>new Chart(document.getElementById('ownerSubChart'),{type:'bar',data:{labels:['Jan','Feb','Mar'],datasets:[{label:'Private pay',data:[840,860,860],backgroundColor:'#1D9E75',borderRadius:3,barPercentage:0.7},{label:'Subsidy received',data:[780,800,820],backgroundColor:'#8B5CF6',borderRadius:3,barPercentage:0.7},{label:'Subsidy pending',data:[60,40,20],backgroundColor:'#D4B8FE',borderRadius:3,barPercentage:0.7}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},callback:v=>'$'+v}}}}}),
+    'schoolsChart':()=>new Chart(document.getElementById('schoolsChart'),{type:'bar',data:{labels:schools,datasets:[{label:'Enrollment',data:enD,backgroundColor:'#1D9E75',borderRadius:3,barPercentage:0.6},{label:'Fee Coll',data:fcD,backgroundColor:'#EF9F27',borderRadius:3,barPercentage:0.6},{label:'Rev index',data:rvD,backgroundColor:'#D85A30',borderRadius:3,barPercentage:0.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{min:70,max:110,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}}}}),
+    'franchiseSubChart':()=>new Chart(document.getElementById('franchiseSubChart'),{type:'bar',data:{labels:schools,datasets:[{label:'Private pay',data:[1080,1080,1060,1000,1070],backgroundColor:'#1D9E75',borderRadius:3,barPercentage:0.65},{label:'Subsidy received',data:[260,220,180,140,240],backgroundColor:'#8B5CF6',borderRadius:3,barPercentage:0.65},{label:'Pending',data:[0,20,50,70,0],backgroundColor:'#D4B8FE',borderRadius:3,barPercentage:0.65}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},callback:v=>'$'+v}}}}}),
+    'trendChart':()=>new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:['Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26','Q2 26','Q3 26'],datasets:[{data:[85,86,87,86,88,89,87,89,91,null],borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2},{data:[null,null,null,null,null,null,null,89,91,93],borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2,borderDash:[5,4]},{data:[91,92,93,92,93,94,93,95,null,null],borderColor:'#EF9F27',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2},{data:[null,null,null,null,null,null,null,95,96,97],borderColor:'#EF9F27',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2,borderDash:[5,4]},{data:[88,89,91,90,91,92,93,94,null,null],borderColor:'#D85A30',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2},{data:[null,null,null,null,null,null,null,94,96,98],borderColor:'#D85A30',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2,borderDash:[5,4]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}},y:{min:78,max:102,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}}}}),
+    'enrollChart':()=>new Chart(document.getElementById('enrollChart'),{type:'bar',data:{labels:schools,datasets:[{label:'Enrolled',data:[68,54,48,41,58],backgroundColor:'#1D9E75',borderRadius:3,barPercentage:0.65},{label:'Capacity',data:[72,60,55,55,64],backgroundColor:'rgba(29,158,117,0.2)',borderRadius:3,barPercentage:0.65}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}}}}),
+    'programChart':()=>new Chart(document.getElementById('programChart'),{type:'doughnut',data:{labels:['Infant (92%)','Toddler (95%)','Pre-K (91%)','After-School (82%)'],datasets:[{data:[92,95,91,82],backgroundColor:['#1D9E75','#5DCAA5','#EF9F27','#FAC775'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10}}}}}),
+    'revenueChart':()=>new Chart(document.getElementById('revenueChart'),{type:'bar',data:{labels:schools,datasets:[{label:'Rev/Child',data:[1340,1300,1240,1140,1310],backgroundColor:['#1D9E75','#1D9E75','#EF9F27','#E24B4A','#1D9E75'],borderRadius:3,barPercentage:0.55},{type:'line',label:'Benchmark',data:[1300,1300,1300,1300,1300],borderColor:'#888780',borderDash:[5,4],borderWidth:1.5,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{min:1000,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},callback:v=>'$'+v}}}}}),
+    'revTrendChart':()=>new Chart(document.getElementById('revTrendChart'),{type:'line',data:{labels:['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{data:[322,328,330,335,331,336,340,344,348],borderColor:'#D85A30',backgroundColor:'rgba(216,90,48,0.07)',fill:true,tension:0.4,pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},callback:v=>'$'+v+'K'}}}}}),
+    'collectionChart':()=>new Chart(document.getElementById('collectionChart'),{type:'bar',data:{labels:schools,datasets:[{label:'Fee Coll %',data:fcD,backgroundColor:['#1D9E75','#EF9F27','#EF9F27','#E24B4A','#EF9F27'],borderRadius:3,barPercentage:0.55},{type:'line',label:'Benchmark 97%',data:[97,97,97,97,97],borderColor:'#888780',borderDash:[5,4],borderWidth:1.5,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{min:80,max:102,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},callback:v=>v+'%'}}}}}),
+    'forecastChart':()=>new Chart(document.getElementById('forecastChart'),{type:'bar',data:{labels:schools,datasets:[{label:'Q1 Actual',data:enD,backgroundColor:'rgba(216,90,48,0.35)',borderRadius:3,barPercentage:0.6},{label:'Q2 Projected',data:[96,91,90,83,92],backgroundColor:'#D85A30',borderRadius:3,barPercentage:0.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{min:65,max:105,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}}}}),
+    'netChart':()=>new Chart(document.getElementById('netChart'),{type:'line',data:{labels:['Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26'],datasets:[{data:[83,84,85,86,85,87,88,87,88],borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2},{data:[90,90,91,92,91,93,93,92,93],borderColor:'#EF9F27',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2},{data:[88,89,90,91,90,91,92,93,94],borderColor:'#534AB7',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}},y:{min:78,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}}}}),
+    'netSubChart':()=>new Chart(document.getElementById('netSubChart'),{type:'bar',data:{labels:['Northeast','Southeast','Midwest','West'],datasets:[{label:'Private pay',data:[1100,980,1040,920],backgroundColor:'#1D9E75',borderRadius:3,barPercentage:0.7},{label:'Subsidy received',data:[280,260,250,260],backgroundColor:'#8B5CF6',borderRadius:3,barPercentage:0.7},{label:'Pending/unfiled',data:[0,70,10,0],backgroundColor:'#D4B8FE',borderRadius:3,barPercentage:0.7}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},callback:v=>'$'+v}}}}}),
+    'sspEnrollChart':()=>new Chart(document.getElementById('sspEnrollChart'),{type:'bar',data:{labels:['90%+','85–89%','80–84%','<80%'],datasets:[{label:'Programs',data:[12,7,5,4],backgroundColor:['#1D9E75','#5DCAA5','#EF9F27','#E24B4A'],borderRadius:3,barPercentage:0.55}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},stepSize:2}}}}}),
+    'sspSubChart':()=>new Chart(document.getElementById('sspSubChart'),{type:'doughnut',data:{labels:['Filed on time (18)','Pending redetermination (6)','Expired vouchers (4)','Unscreened eligible (5)'],datasets:[{data:[18,6,4,5],backgroundColor:['#1D9E75','#EF9F27','#E24B4A','#8B5CF6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10}}}}}),
+    'sspTrendChart':()=>new Chart(document.getElementById('sspTrendChart'),{type:'line',data:{labels:['Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26'],datasets:[{label:'Avg enrollment',data:[83,84,84,85,85,86,85,87],borderColor:'#1D7A9E',backgroundColor:'rgba(29,122,158,0.07)',fill:true,tension:0.4,pointRadius:3,borderWidth:2},{label:'Avg fee coll',data:[89,90,90,91,91,92,92,92],borderColor:'#8B5CF6',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10}}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}},y:{min:78,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}}}})
+  };
+  Object.entries(defs).forEach(([id,fn])=>{if(!dbChartsBuilt[id]&&document.getElementById(id)){dbChartsBuilt[id]=true;fn();}});
+}
+
+/* ────────────────────────────────
+   SUBSIDY COMPONENT (shared)
+──────────────────────────────── */
+function subsidyView(persona){
+  const data={
+    owner:{pending:'$840',children:'2',uncaptured:'3',opportunity:'$400–$600',private:75,sub:22,pend:3},
+    franchise:{pending:'$2,840',children:'6',uncaptured:'5',opportunity:'$1,800–$2,400',private:80,sub:17,pend:3},
+    corporate:{pending:'$48,000',children:'~120',uncaptured:'~200',opportunity:'$60–80K/mo',private:77,sub:20,pend:3},
+    ssp:{pending:'$24,600',children:'33',uncaptured:'~45',opportunity:'$15–25K/mo',private:72,sub:21,pend:7}
+  };
+  const d=data[persona]||data.owner;
+  const color=PERSONAS[persona]?.color||'#1D9E75';
+  return `
+  <div class="sub-callout">
+    <span style="font-size:16px;flex-shrink:0">🏛️</span>
+    <div><strong>Subsidy tracking is live.</strong> TriMetrics separates private pay from subsidy revenue so your Iron Triangle metrics reflect true collected income — not just billing. Pending reimbursements appear as a separate line so they never inflate your numbers prematurely.</div>
+  </div>
+  <div class="sum-strip">
+    <div class="sum-card"><div class="sum-label">Subsidy pending</div><div class="sum-val" style="color:#6B21A8">${d.pending}</div><div class="sum-delta dd">Unfiled or at risk of lapsing</div></div>
+    <div class="sum-card"><div class="sum-label">Children affected</div><div class="sum-val">${d.children}</div><div class="sum-delta df">Vouchers expired or incomplete</div></div>
+    <div class="sum-card"><div class="sum-label">Unscreened children</div><div class="sum-val">${d.uncaptured}</div><div class="sum-delta df">May qualify — not yet filed</div></div>
+    <div class="sum-card"><div class="sum-label">Uncaptured opportunity</div><div class="sum-val" style="color:var(--green)">${d.opportunity}</div><div class="sum-delta du">Monthly if fully captured</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Revenue composition — private pay vs subsidy</div></div>
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Revenue mix breakdown</span><span style="color:var(--text-tertiary);font-size:11px">per enrolled child / month</span></div>
+        <div class="sub-split" style="height:16px;border-radius:var(--radius-md)">
+          <div class="sub-private" style="width:${d.private}%"></div>
+          <div class="sub-subsidy" style="width:${d.sub}%"></div>
+          <div class="sub-pending" style="width:${d.pend}%"></div>
+        </div>
+        <div class="sub-labels" style="margin-top:8px;font-size:12px">
+          <span><span class="sub-dot" style="background:var(--green)"></span>Private pay ${d.private}%</span>
+          <span><span class="sub-dot" style="background:#8B5CF6"></span>Subsidy received ${d.sub}%</span>
+          <span><span class="sub-dot" style="background:#D4B8FE"></span>Pending ${d.pend}%</span>
+        </div>
+      </div>
+      <div style="position:relative;width:100%;height:160px"><canvas id="subStackChart-${persona}"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">AI — subsidy action items</div><span class="bsub">Priority</span></div>
+      <div class="ins-row"><div class="ins-ico ir">⚑</div><div><div class="ins-txt"><strong>Expired vouchers:</strong> File reimbursements within 7 days or forfeit. ${d.pending} at risk.</div><div class="ins-lnk" style="color:#6B21A8">→ View urgent items</div></div></div>
+      <div class="ins-row"><div class="ins-ico ia">📋</div><div><div class="ins-txt"><strong>Redetermination overdue:</strong> ${d.children} children need updated eligibility paperwork to keep subsidy active.</div><div class="ins-lnk" style="color:#6B21A8">→ View redetermination list</div></div></div>
+      <div class="ins-row"><div class="ins-ico ip">🔍</div><div><div class="ins-txt"><strong>Eligibility screening opportunity:</strong> ${d.uncaptured} enrolled children have no subsidy flag — run a screening to identify uncaptured voucher eligibility worth ${d.opportunity}/month.</div><div class="ins-lnk" style="color:#6B21A8">→ Run eligibility screen</div></div></div>
+      <div class="ins-row"><div class="ins-ico ig">↑</div><div><div class="ins-txt"><strong>Impact on Iron Triangle:</strong> Fully capturing pending subsidy improves your effective revenue/child and fee collection rate simultaneously — it moves two benchmarks at once.</div></div></div>
+    </div>
+  </div>`;
+}
+
+/* ────────────────────────────────
+   VIEW HTML BUILDERS
+──────────────────────────────── */
+function iR(cls,icon,text,link,fn){return`<div class="ins-row"><div class="ins-ico ${cls}">${icon}</div><div><div class="ins-txt">${text}</div>${link?`<div class="ins-lnk" style="color:${PERSONAS[currentPersona]?.color||'#1D9E75'}" onclick="${fn||''}">→ ${link}</div>`:''}</div></div>`;}
+function sC(label,val,delta,cls){return`<div class="sum-card"><div class="sum-label">${label}</div><div class="sum-val">${val}</div><div class="sum-delta ${cls||''}">${delta}</div></div>`;}
+function leg(...items){return`<div class="legend">${items.map(([c,l])=>`<span><span class="lsq" style="background:${c}"></span>${l}</span>`).join('')}</div>`;}
+function bmSliders(color){return`<div class="card" style="max-width:520px;margin-bottom:14px"><div class="card-header"><div class="card-title">Benchmark settings</div></div><p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6">These benchmarks drive status badges, AI insights, and alerts.</p><div style="display:flex;flex-direction:column;gap:18px"><div><div style="display:flex;justify-content:space-between;margin-bottom:7px"><label style="font-size:13px;font-weight:600">Full Enrollment target</label><span style="font-size:14px;font-weight:600;color:${color}" id="bm-e">90%</span></div><input type="range" min="75" max="100" value="90" step="1" oninput="document.getElementById('bm-e').textContent=this.value+'%'" style="accent-color:${color}"></div><div><div style="display:flex;justify-content:space-between;margin-bottom:7px"><label style="font-size:13px;font-weight:600">Fee Collection target</label><span style="font-size:14px;font-weight:600;color:${color}" id="bm-f">97%</span></div><input type="range" min="80" max="100" value="97" step="1" oninput="document.getElementById('bm-f').textContent=this.value+'%'" style="accent-color:${color}"></div><div><div style="display:flex;justify-content:space-between;margin-bottom:7px"><label style="font-size:13px;font-weight:600">Revenue / Child target</label><span style="font-size:14px;font-weight:600;color:${color}" id="bm-r">$1,300</span></div><input type="range" min="900" max="1800" value="1300" step="10" oninput="document.getElementById('bm-r').textContent='$'+parseInt(this.value).toLocaleString()" style="accent-color:${color}"></div></div><hr style="border:none;border-top:0.5px solid var(--border-light);margin:20px 0"><div style="display:flex;gap:8px"><button class="btn" style="flex:1" onclick="showToast('Benchmarks saved!')">Save changes</button><button class="btn" style="flex:1">Reset to defaults</button></div></div>`;}
+
+function buildOwnerViews(){
+  return`
+  <div id="view-overview" class="view active">
+    <div class="sum-strip">${sC('Full enrollment','92%','↑ 2% vs quarter · Above 90% benchmark','du')}${sC('Revenue / child','$1,240','↓ $60 vs $1,300 target · $980 private + $260 subsidy','df')}${sC('Full fee collection','94%','$380 gap · Benchmark: 97%','df')}${sC('Subsidy pending','$840','2 children unfiled this month','dd')}</div>
+    <div style="background:#EAF3DE;border:0.5px solid #97C459;border-radius:var(--radius-md);padding:10px 14px;margin-bottom:10px;font-size:12px;color:#3B6D11">✦ <strong>AI insight:</strong> Fee collection is at 94% — you're $380 from your 97% benchmark. Also: $840 in subsidy reimbursements are unfiled this month.</div>
+    <div style="background:#F5F0FE;border:0.5px solid #C4B5FD;border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px;font-size:12px;color:#4C1D95">🏛️ <strong>Subsidy insight:</strong> 3 enrolled children have no subsidy designation — at least 1–2 likely qualify. Running an eligibility screen could recover $400–$600/month. <span style="cursor:pointer;text-decoration:underline" onclick="switchView('subsidy',document.getElementById('nav-subsidy'))">View subsidy tracker →</span></div>
+    <div class="two-col">
+      <div class="card"><div class="card-header"><div class="card-title">12-month trend</div></div>${leg(['#1D9E75','Enrollment %'],['#EF9F27','Fee Collection %'])}<div style="position:relative;width:100%;height:200px"><canvas id="ownerTrendChart"></canvas></div></div>
+      <div class="card"><div class="card-header"><div class="card-title">Enrollment by program</div></div><div style="position:relative;width:100%;height:220px"><canvas id="ownerDonutChart"></canvas></div></div>
+    </div>
+    <div class="card"><div class="card-header"><div class="card-title">AI Actionable Insights</div><span class="badge bg">3 recommendations</span></div>
+      ${iR('ia','⚑','<strong>Fee collection gap:</strong> 3 families 10+ days overdue totaling $380.','View overdue accounts',`switchView('collection',document.getElementById('nav-collection'))`)}
+      ${iR('ip','🏛️','<strong>Subsidy pending:</strong> $840 in reimbursements unfiled — file this week to avoid forfeiting.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}
+      ${iR('ig','↑','<strong>Revenue opportunity:</strong> Toddler room rate hasn\'t been updated since Q3 2024. A rate adjustment adds ~$1,800/month.','Run rate model','toggleAI()')}
+    </div>
+  </div>
+  <div id="view-enrollment" class="view"><div class="sum-strip">${sC('Current enrollment','92%','↑ 2% vs last quarter','du')}${sC('Total enrolled','46','of 50 capacity','df')}${sC('Open seats','4','3 actionable','dd')}${sC('Waitlist','4','Infant room','du')}</div><div class="card"><div class="card-header"><div class="card-title">Program breakdown</div></div><div style="position:relative;width:100%;height:200px"><canvas id="ownerDonutChart2"></canvas></div></div></div>
+  <div id="view-revenue" class="view"><div class="sum-strip">${sC('Revenue / child','$1,240','Private $980 + Subsidy $260','df')}${sC('Monthly revenue','$57,040','↑ $1,200 vs Q4 2025','du')}${sC('Revenue gap','$2,760','Monthly vs benchmark','df')}${sC('Subsidy share','21%','of total monthly revenue','')}</div><div class="card" style="margin-bottom:14px"><div class="card-header"><div class="card-title">Revenue composition — private pay vs subsidy</div></div>${leg(['#1D9E75','Private pay'],['#8B5CF6','Subsidy received'],['#D4B8FE','Pending'])}<div class="sub-split" style="height:14px;border-radius:var(--radius-md);margin-bottom:6px"><div class="sub-private" style="width:75%"></div><div class="sub-subsidy" style="width:22%"></div><div class="sub-pending" style="width:3%"></div></div><div class="sub-labels" style="font-size:12px;margin-bottom:14px"><span><span class="sub-dot" style="background:var(--green)"></span>$980 private pay (75%)</span><span><span class="sub-dot" style="background:#8B5CF6"></span>$260 subsidy (21%)</span><span><span class="sub-dot" style="background:#D4B8FE"></span>$60 pending (4%)</span></div><div style="position:relative;width:100%;height:160px"><canvas id="ownerSubChart"></canvas></div></div></div>
+  <div id="view-collection" class="view"><div class="sum-strip">${sC('Fee collection','94%','↓ 3% from 97% benchmark','df')}${sC('Outstanding','$1,140','4 families','dd')}${sC('Overdue 10+ days','$380','3 families','dd')}${sC('Auto-pay enrolled','62%','vs 70% benchmark','df')}</div><div class="card"><div class="card-header"><div class="card-title">Collection AI insights</div></div>${iR('ir','⚑','<strong>3 families</strong> 10+ days overdue totaling $380. A direct call this week closes the benchmark gap.','','')}${iR('ia','$','<strong>Auto-pay</strong> at 62% — centers at 70%+ average 97.5% collection. Send auto-pay invites.','','')}${iR('ip','🏛️','<strong>Note:</strong> Subsidy reimbursements count toward fee collection once filed. Filing your $840 pending reimbursement moves your collection rate to 95.8%.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}
+    </div></div>
+  <div id="view-subsidy" class="view">${subsidyView('owner')}</div>
+  <div id="view-projections" class="view"><div class="sum-strip">${sC('Projected Q2 enrollment','95%','↑ 3% if waitlist intake proceeds','du')}${sC('Projected Q2 rev/child','$1,300','↑ with rate adj + subsidy capture','du')}${sC('Projected fee coll.','97%','↑ with outreach + subsidy filed','du')}${sC('Revenue opportunity','$3,600','Monthly at full benchmark capture','df')}</div><div class="card"><div class="card-header"><div class="card-title">12-month Iron Triangle trend</div></div>${leg(['#1D9E75','Enrollment %'],['#EF9F27','Fee Collection %'])}<div style="position:relative;width:100%;height:200px"><canvas id="ownerTrendChart3"></canvas></div></div></div>
+  <div id="view-benchmarks" class="view">${bmSliders('#1D9E75')}</div>
+  <div id="view-reports" class="view"><div class="card" style="max-width:520px"><div class="card-header"><div class="card-title">Reports</div></div><p style="font-size:13px;color:var(--text-secondary)">Use the Export & Share button in the top bar to generate PDF or CSV reports.</p></div></div>`;
+}
+
+function buildFranchiseViews(){
+  const rows=Object.entries(schoolData).map(([key,d])=>{
+    const ec=d.enroll>=90?'var(--green)':d.enroll>=85?'var(--amber)':'var(--red)';
+    const fc=d.fee>=97?'var(--green)':d.fee>=93?'var(--amber)':'var(--red)';
+    const bc=d.enroll>=90&&d.fee>=97?'bg':d.enroll>=85?'ba':'br';
+    const bl=d.enroll>=90&&d.fee>=97?'Strong':d.enroll>=85?'Watch':'At risk';
+    const bc2=d.enroll>=90?'#1D9E75':d.enroll>=85?'#EF9F27':'#E24B4A';
+    const fc2=d.fee>=97?'#1D9E75':d.fee>=93?'#EF9F27':'#E24B4A';
+    const rc2=d.rev>=1300?'#1D9E75':d.rev>=1200?'#EF9F27':'#E24B4A';
+    return`<div class="school-row" onclick="selectSchool('${key}',this)"><div><div class="sn">${d.name}</div><div class="ss">${d.cap} capacity</div></div><div class="mv" style="color:${ec}">${d.enroll}%</div><div class="mv" style="color:${rc2}">$${d.rev.toLocaleString()}</div><div class="mv" style="color:${fc}">${d.fee}%</div><div class="tri-mini"><div class="bar-t"><div class="bar-f" style="width:${d.enroll}%;background:${bc2}"></div></div><div class="bar-t"><div class="bar-f" style="width:${d.fee}%;background:${fc2}"></div></div><div class="bar-t"><div class="bar-f" style="width:${Math.min(d.rev/16,100)}%;background:${rc2}"></div></div></div><div style="text-align:center"><span class="badge ${bc}">${bl}</span></div></div>`;
+  }).join('');
+  return`
+  <div id="view-overview" class="view active">
+    <div class="sum-strip">${sC('Portfolio enrollment','89.2%','↑ 2.1% vs Q4 · Near 90% target','du')}${sC('Avg revenue / child','$1,295','$1,040 private + $255 subsidy avg','df')}${sC('Avg fee collection','94.6%','↓ 2.4% from 97% benchmark','df')}${sC('Subsidy pending','$2,840','Across 3 schools · File this week','dd')}</div>
+    <div style="background:#F5F0FE;border:0.5px solid #C4B5FD;border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px;font-size:12px;color:#4C1D95">🏛️ <strong>Subsidy alert:</strong> $2,840 in reimbursements unfiled across Thornton, Westminster, and Arvada. Thornton's subsidy gap compounds its already-weak revenue/child number. <span style="cursor:pointer;text-decoration:underline" onclick="switchView('subsidy',document.getElementById('nav-subsidy'))">View subsidy tracker →</span></div>
+    <div class="two-col">
+      <div><div class="school-hdr"><span>School</span><span style="text-align:center">Enrolled</span><span style="text-align:center">Rev/Child</span><span style="text-align:center">Fee Coll.</span><span style="text-align:center">Triangle</span><span style="text-align:center">Status</span></div>${rows}</div>
+      <div class="card"><div class="card-header"><div class="card-title">AI — priority actions</div><span class="badge" style="background:var(--brand-light);color:var(--brand-dark)">5 actions</span></div>
+        ${iR('ir','⚑','<strong>Thornton needs urgent attention</strong> — below all 3 benchmarks for 2 consecutive quarters.','View enrollment',`switchView('enrollment',document.getElementById('nav-enrollment'))`)}
+        ${iR('ip','🏛️','<strong>Subsidy pending $2,840</strong> — Thornton ($1,420), Westminster ($980), Arvada ($440). File this week.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}
+        ${iR('ia','$','<strong>Westminster fee gap:</strong> $2,100 outstanding. 4 families 21+ days overdue.','View collection',`switchView('collection',document.getElementById('nav-collection'))`)}
+        ${iR('ig','↑','<strong>Lakewood is your template</strong> — all 3 metrics above benchmark plus subsidy fully filed.','Ask AI','toggleAI()')}
+        ${iR('ib','◎','<strong>Q2 forecast:</strong> Portfolio hits 91% if Thornton recovers to 83%+ and pending subsidies filed.','View projections',`switchView('projections',document.getElementById('nav-projections'))`)}
+      </div>
+    </div>
+    <div id="school-detail" style="display:none"><div class="detail-panel"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div><div style="font-size:15px;font-weight:600" id="detail-name"></div><div style="font-size:11px;color:var(--text-tertiary);margin-top:2px" id="detail-sub"></div></div><button class="btn" onclick="closeDetail()" style="font-size:11px">Close ✕</button></div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px" id="detail-metrics"></div><div style="position:relative;width:100%;height:160px"><canvas id="detailChart"></canvas></div></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">Portfolio Iron Triangle — school comparison</div></div>${leg(['#1D9E75','Enrollment %'],['#EF9F27','Fee collection %'],['#D85A30','Rev/child index'])}<div style="position:relative;width:100%;height:200px"><canvas id="schoolsChart"></canvas></div></div>
+  </div>
+  <div id="view-schools" class="view">
+    <div class="sum-strip">${sC('Top performer','Lakewood','94% enrollment, 97% fee coll., subsidy filed','du')}${sC('Needs attention','Thornton','75% enrollment, $1,420 subsidy pending','dd')}${sC('Portfolio gap','$8,200','Monthly revenue vs full benchmark','df')}${sC('Seats available','37','Across 4 schools','du')}</div>
+    <div class="card" style="margin-bottom:14px"><div class="card-header"><div class="card-title">Revenue composition per school — private pay vs subsidy</div></div>${leg(['#1D9E75','Private pay'],['#8B5CF6','Subsidy received'],['#D4B8FE','Pending'])}<div style="position:relative;width:100%;height:220px"><canvas id="franchiseSubChart"></canvas></div></div>
+    <div class="three-col"><div class="card"><div class="card-header"><div class="card-title">Enrollment ranking</div></div><div style="font-size:12px;display:flex;flex-direction:column;gap:9px"><div style="display:flex;justify-content:space-between"><span>Lakewood</span><strong style="color:var(--green)">94%</strong></div><div style="display:flex;justify-content:space-between"><span>Broomfield</span><strong style="color:var(--green)">91%</strong></div><div style="display:flex;justify-content:space-between"><span>Arvada</span><strong style="color:var(--green)">90%</strong></div><div style="display:flex;justify-content:space-between"><span>Westminster</span><strong style="color:var(--amber)">87%</strong></div><div style="display:flex;justify-content:space-between"><span>Thornton</span><strong style="color:var(--red)">75%</strong></div></div></div><div class="card"><div class="card-header"><div class="card-title">Revenue / child ranking</div></div><div style="font-size:12px;display:flex;flex-direction:column;gap:9px"><div style="display:flex;justify-content:space-between"><span>Lakewood</span><strong style="color:var(--green)">$1,340</strong></div><div style="display:flex;justify-content:space-between"><span>Broomfield</span><strong>$1,310</strong></div><div style="display:flex;justify-content:space-between"><span>Arvada</span><strong>$1,300</strong></div><div style="display:flex;justify-content:space-between"><span>Westminster</span><strong style="color:var(--amber)">$1,240</strong></div><div style="display:flex;justify-content:space-between"><span>Thornton</span><strong style="color:var(--red)">$1,140</strong></div></div></div><div class="card"><div class="card-header"><div class="card-title">Subsidy pending by school</div></div><div style="font-size:12px;display:flex;flex-direction:column;gap:9px"><div style="display:flex;justify-content:space-between"><span>Lakewood</span><strong style="color:var(--green)">$0</strong></div><div style="display:flex;justify-content:space-between"><span>Broomfield</span><strong style="color:var(--green)">$0</strong></div><div style="display:flex;justify-content:space-between"><span>Arvada</span><strong style="color:var(--amber)">$440</strong></div><div style="display:flex;justify-content:space-between"><span>Westminster</span><strong style="color:var(--amber)">$980</strong></div><div style="display:flex;justify-content:space-between"><span>Thornton</span><strong style="color:var(--red)">$1,420</strong></div></div></div></div>
+  </div>
+  <div id="view-projections" class="view"><div class="sum-strip">${sC('Projected Q2 enrollment','91.0%','↑ 1.8% if Thornton recovers','du')}${sC('Projected Q2 rev/child','$1,315','↑ $20 + subsidy capture','du')}${sC('Projected fee coll.','95.8%','↑ with collections + subsidy filed','du')}${sC('Revenue at stake','$15,240','With all actions + subsidy capture','df')}</div><div class="card"><div class="card-header"><div class="card-title">12-month trend + Q2–Q3 projection</div><div style="font-size:11px;color:var(--text-tertiary)">Dashed = projected</div></div>${leg(['#1D9E75','Enrollment %'],['#EF9F27','Fee collection %'],['#D85A30','Rev/child index'])}<div style="position:relative;width:100%;height:220px"><canvas id="trendChart"></canvas></div></div></div>
+  <div id="view-enrollment" class="view"><div class="sum-strip">${sC('Portfolio enrollment','89.2%','↓ 0.8% from 90% benchmark','df')}${sC('Total enrolled','269','of 306 total capacity','')}${sC('Open seats','37','28 actionable, 9 structural','dd')}${sC('Schools at benchmark','3 / 5','Lakewood, Arvada, Broomfield','du')}</div><div class="card" style="margin-bottom:14px"><div class="card-header"><div class="card-title">Enrollment by school</div></div><div style="position:relative;width:100%;height:220px"><canvas id="enrollChart"></canvas></div></div><div class="two-col"><div class="card"><div class="card-header"><div class="card-title">Program breakdown</div></div><div style="position:relative;width:100%;height:200px"><canvas id="programChart"></canvas></div></div><div class="card"><div class="card-header"><div class="card-title">Enrollment AI insights</div></div>${iR('ir','⚑','<strong>Thornton infant room</strong> at 60% — lowest across all programs.','','')}${iR('ia','⚠','<strong>Westminster after-school</strong> at 78% — 4 open spots.','','')}${iR('ig','↑','<strong>Lakewood infant</strong> fully enrolled with 3 on waitlist.','','')}</div></div></div>
+  <div id="view-revenue" class="view"><div class="sum-strip">${sC('Avg rev / child','$1,295','$1,040 private + $255 subsidy avg','df')}${sC('Total monthly revenue','$348K','↑ $12K vs Q4 2025','du')}${sC('Revenue gap','$1,345','Monthly vs full benchmark','df')}${sC('Schools above benchmark','2 / 5','Lakewood, Broomfield','')}</div><div class="card" style="margin-bottom:14px"><div class="card-header"><div class="card-title">Revenue per child — vs $1,300 benchmark</div></div><div style="position:relative;width:100%;height:200px"><canvas id="revenueChart"></canvas></div></div><div class="two-col"><div class="card"><div class="card-header"><div class="card-title">Monthly revenue trend</div></div><div style="position:relative;width:100%;height:180px"><canvas id="revTrendChart"></canvas></div></div><div class="card"><div class="card-header"><div class="card-title">Revenue AI insights</div></div>${iR('ia','$','<strong>Westminster & Thornton</strong> rates haven\'t been updated since Q3 2024.','','')}${iR('ip','🏛️','<strong>Subsidy pending</strong> at Thornton ($1,420) is suppressing that school\'s effective rev/child by $35/month.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}${iR('ig','↑','<strong>Rate adjustment opportunity:</strong> A $40 increase at Westminster and Thornton adds ~$3,560/month.','','')}</div></div></div>
+  <div id="view-collection" class="view"><div class="sum-strip">${sC('Avg fee collection','94.6%','↓ 2.4% from 97% benchmark','df')}${sC('Outstanding balance','$9,840','Across all schools','dd')}${sC('Overdue 30+ days','$4,210','11 families','dd')}${sC('Schools at benchmark','1 / 5','Only Lakewood at 97%','')}</div><div class="card" style="margin-bottom:14px"><div class="card-header"><div class="card-title">Fee collection by school</div></div><div style="position:relative;width:100%;height:200px"><canvas id="collectionChart"></canvas></div></div><div class="card"><div class="card-header"><div class="card-title">Collection AI insights</div></div>${iR('ir','⚑','<strong>Thornton $3,840 outstanding</strong> — 3 families at 45+ days.','','')}${iR('ip','🏛️','<strong>Subsidy reimbursements count toward collection</strong> once received. Filing Thornton\'s $1,420 pending moves its rate from 88% to 91%.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}${iR('ig','↑','<strong>Lakewood\'s billing cadence</strong> drives its 97% rate — roll out portfolio-wide.','','')}</div></div>
+  <div id="view-subsidy" class="view">${subsidyView('franchise')}</div>
+  <div id="view-benchmarks" class="view">${bmSliders('#D85A30')}</div>`;
+}
+
+function buildCorporateViews(){
+  return`
+  <div id="view-overview" class="view active">
+    <div class="sum-strip">${sC('Network enrollment','88.4%','↑ 1.2% vs Q4 2025','du')}${sC('Avg revenue / child','$1,310','$1,040 private + $270 subsidy avg','df')}${sC('Avg fee collection','93.1%','↓ 0.4% vs target','df')}${sC('Subsidy pending','$48,000','Southeast portfolio · File urgently','dd')}</div>
+    <div style="background:#F5F0FE;border:0.5px solid #C4B5FD;border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px;font-size:12px;color:#4C1D95">🏛️ <strong>Subsidy alert:</strong> $48,000 in reimbursements unfiled across Southeast — this is suppressing the region's effective revenue/child by $22/month. <span style="cursor:pointer;text-decoration:underline" onclick="switchView('subsidy',document.getElementById('nav-subsidy'))">View subsidy tracker →</span></div>
+    <div class="two-col">
+      <div class="card"><div class="card-header"><div class="card-title">Iron Triangle by region</div></div>
+        <table class="rtable"><thead><tr><th>Region</th><th>Centers</th><th>Enrollment</th><th>Rev/Child</th><th>Fee Coll.</th><th>Status</th></tr></thead><tbody>
+          <tr><td style="font-weight:600">Northeast</td><td style="color:var(--text-secondary)">22</td><td><div style="display:flex;align-items:center;gap:6px"><div style="width:50px;height:5px;background:var(--bg-secondary);border-radius:3px;overflow:hidden"><div style="width:93%;height:100%;background:var(--green)"></div></div><span>93%</span></div></td><td>$1,380</td><td>95.2%</td><td><span class="badge bg">Strong</span></td></tr>
+          <tr><td style="font-weight:600">Southeast</td><td style="color:var(--text-secondary)">18</td><td><div style="display:flex;align-items:center;gap:6px"><div style="width:50px;height:5px;background:var(--bg-secondary);border-radius:3px;overflow:hidden"><div style="width:86%;height:100%;background:var(--amber)"></div></div><span>86%</span></div></td><td>$1,260 <span class="bsub" style="font-size:9px">$48K sub pending</span></td><td>91.0%</td><td><span class="badge ba">Watch</span></td></tr>
+          <tr><td style="font-weight:600">Midwest</td><td style="color:var(--text-secondary)">24</td><td><div style="display:flex;align-items:center;gap:6px"><div style="width:50px;height:5px;background:var(--bg-secondary);border-radius:3px;overflow:hidden"><div style="width:90%;height:100%;background:var(--green)"></div></div><span>90%</span></div></td><td>$1,290</td><td>93.8%</td><td><span class="badge bg">On track</span></td></tr>
+          <tr><td style="font-weight:600">West</td><td style="color:var(--text-secondary)">16</td><td><div style="display:flex;align-items:center;gap:6px"><div style="width:50px;height:5px;background:var(--bg-secondary);border-radius:3px;overflow:hidden"><div style="width:80%;height:100%;background:var(--red)"></div></div><span>80%</span></div></td><td>$1,180</td><td>88.4%</td><td><span class="badge br">At risk</span></td></tr>
+        </tbody></table>
+      </div>
+      <div class="card"><div class="card-header"><div class="card-title">AI — network actions</div><span class="badge bb">5 items</span></div>
+        ${iR('ir','⚑','<strong>West region alert:</strong> 6 centers below 82% enrollment for 2+ consecutive months.','View centers',`switchView('regions',document.getElementById('nav-regions'))`)}
+        ${iR('ip','🏛️','<strong>Subsidy alert:</strong> $48K unfiled in Southeast — suppressing region revenue/child by $22/month.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}
+        ${iR('ia','↑','<strong>Rate standardization:</strong> Northeast averages $120 more/child vs Southeast.','Run comparison','toggleAI()')}
+        ${iR('ib','◎','<strong>Q2 projection:</strong> Network hits 90.1% enrollment by June — first time above 90%.','View forecast',`switchView('comparison',document.getElementById('nav-comparison'))`)}
+      </div>
+    </div>
+    <div class="card"><div class="card-header"><div class="card-title">Network Iron Triangle trend</div></div>${leg(['#1D9E75','Enrollment %'],['#EF9F27','Fee Collection %'],['#534AB7','Rev/Child index'])}<div style="position:relative;width:100%;height:180px"><canvas id="netChart"></canvas></div></div>
+  </div>
+  <div id="view-regions" class="view"><div class="sum-strip">${sC('Best region','Northeast','93% enrollment, 95.2% fee coll.','du')}${sC('At-risk region','West','80% enrollment, $1,180 rev','dd')}${sC('Subsidy gap','Southeast','$48K unfiled reimbursements','dd')}${sC('Regions on track','2 / 4','Northeast, Midwest','')}</div><div class="card" style="margin-bottom:14px"><div class="card-header"><div class="card-title">Revenue composition by region — private pay vs subsidy</div></div>${leg(['#1D9E75','Private pay'],['#8B5CF6','Subsidy received'],['#D4B8FE','Pending'])}<div style="position:relative;width:100%;height:220px"><canvas id="netSubChart"></canvas></div></div></div>
+  <div id="view-comparison" class="view"><div class="sum-strip">${sC('Q2 projection','90.1%','First time above 90% network-wide','du')}${sC('Centers improving','48','Out of 80 this quarter','du')}${sC('Centers declining','12','Concentrated in West','dd')}${sC('Revenue upside','$86K','Monthly with all actions + subsidy','df')}</div><div class="card"><div class="card-header"><div class="card-title">Network trend + Q2–Q3 projection</div></div>${leg(['#1D9E75','Enrollment %'],['#EF9F27','Fee Collection %'])}<div style="position:relative;width:100%;height:220px"><canvas id="corpTrendChart"></canvas></div></div></div>
+  <div id="view-enrollment" class="view"><div class="sum-strip">${sC('Network enrollment','88.4%','↓ 1.6% from 90% benchmark','df')}${sC('Total enrolled','~7,072','of ~8,000 capacity','')}${sC('Open seats','~928','Across 80 centers','dd')}${sC('Centers at benchmark','52 / 80','65% of network','du')}</div><div class="card"><div class="card-header"><div class="card-title">Enrollment AI insights</div></div>${iR('ir','⚑','<strong>West region</strong> — 6 centers below 82% for 2+ months require immediate attention.','','')}${iR('ia','⚠','<strong>Southeast infant programs</strong> consistently underenrolled vs peer regions.','','')}${iR('ig','↑','<strong>Northeast model:</strong> 34% inquiry-to-enrollment conversion vs 22% network average.','','')}</div></div>
+  <div id="view-revenue" class="view"><div class="sum-strip">${sC('Avg rev / child','$1,310','$1,040 private + $270 subsidy avg','df')}${sC('Total monthly rev','~$9.3M','↑ $180K vs Q4 2025','du')}${sC('Revenue gap','~$142K','Monthly vs full benchmark','df')}${sC('Subsidy pending','$48K','Southeast portfolio','dd')}</div><div class="card"><div class="card-header"><div class="card-title">Revenue AI insights</div></div>${iR('ip','🏛️','<strong>$48K in unfiled Southeast subsidies</strong> suppresses region rev/child by $22/month — filing alone closes 15% of the gap.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}${iR('ia','$','<strong>West and Southeast</strong> have the largest rate gaps — both last updated rates in 2023.','','')}${iR('ig','↑','<strong>A $30 rate increase</strong> for new enrollments across West and Southeast adds ~$38K/month.','','')}</div></div>
+  <div id="view-collection" class="view"><div class="sum-strip">${sC('Avg fee collection','93.1%','↓ 3.9% from 97% benchmark','df')}${sC('Total outstanding','~$186K','Across 80 centers','dd')}${sC('Overdue 30+ days','~$82K','Concentrated in Southeast','dd')}${sC('Regions at benchmark','0 / 4','Northeast closest at 95.2%','')}</div><div class="card"><div class="card-header"><div class="card-title">Collection AI insights</div></div>${iR('ir','⚑','<strong>Southeast $48K outstanding</strong> — 3 centers account for 60%.','','')}${iR('ip','🏛️','<strong>Subsidy reimbursements</strong> count toward collection once received. Filing the $48K pending moves Southeast from 91% to 93.2%.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}${iR('ig','↑','<strong>Northeast\'s 95.2% rate</strong> is achievable network-wide — their weekly reminder protocol takes ~30 min/week per director.','','')}</div></div>
+  <div id="view-subsidy" class="view">${subsidyView('corporate')}</div>
+  <div id="view-benchmarks" class="view">${bmSliders('#534AB7')}</div>`;
+}
+
+function buildSSPViews(){
+  const progData=[
+    {name:'Sunrise Learning Center',city:'Denver',enroll:72,rev:1080,fee:86,sub:'$3,200',subFlag:'br',status:'br',sl:'Intervention',reported:'overdue',reportedLabel:'47 days ago'},
+    {name:'Little Explorers (East)',city:'Aurora',enroll:78,rev:1080,fee:90,sub:'$1,800',subFlag:'ba',status:'br',sl:'Intervention',reported:'overdue',reportedLabel:'32 days ago'},
+    {name:'Community Kids Cooperative',city:'Lakewood',enroll:84,rev:1140,fee:84,sub:'$4,100',subFlag:'br',status:'br',sl:'Intervention',reported:'recent',reportedLabel:'8 days ago'},
+    {name:'Bright Beginnings Westside',city:'Wheat Ridge',enroll:74,rev:1020,fee:88,sub:'$2,200',subFlag:'br',status:'br',sl:'Intervention',reported:'overdue',reportedLabel:'41 days ago'},
+    {name:'Northside CDC',city:'Commerce City',enroll:82,rev:1020,fee:91,sub:'$1,400',subFlag:'ba',status:'ba',sl:'Watch',reported:'late',reportedLabel:'18 days ago'},
+    {name:'Rainbow Bridge',city:'Englewood',enroll:81,rev:1160,fee:92,sub:'$4,800',subFlag:'br',status:'ba',sl:'Watch',reported:'current',reportedLabel:'3 days ago'},
+    {name:'Mesa View Learning',city:'Arvada',enroll:88,rev:1220,fee:93,sub:'$980',subFlag:'ba',status:'ba',sl:'Watch',reported:'current',reportedLabel:'5 days ago'},
+    {name:'Parkside Preschool',city:'Denver',enroll:90,rev:1280,fee:95,sub:'$0',subFlag:'bg',status:'bg',sl:'On track',reported:'current',reportedLabel:'2 days ago'},
+    {name:'Highlands Child Center',city:'Denver',enroll:93,rev:1310,fee:96,sub:'$0',subFlag:'bg',status:'bg',sl:'Strong',reported:'current',reportedLabel:'1 day ago'},
+    {name:'Greenway Academy',city:'Thornton',enroll:91,rev:1290,fee:95,sub:'$0',subFlag:'bg',status:'bg',sl:'On track',reported:'current',reportedLabel:'4 days ago'},
+  ];
+  // reported: 'current' <7d, 'recent' 7–14d, 'late' 15–30d, 'overdue' 30d+
+  const reportedStyle={
+    current:{bg:'#EAF3DE',color:'#3B6D11',dot:'#1D9E75',label:'Current'},
+    recent:{bg:'#F5F5F3',color:'#5f5e5a',dot:'#888780',label:'Recent'},
+    late:{bg:'#FAEEDA',color:'#854F0B',dot:'#EF9F27',label:'Late'},
+    overdue:{bg:'#FCEBEB',color:'#A32D2D',dot:'#E24B4A',label:'Overdue'}
+  };
+  const progRows=progData.map(p=>{
+    const ec=p.enroll>=90?'var(--green)':p.enroll>=85?'var(--amber)':'var(--red)';
+    const fc=p.fee>=95?'var(--green)':p.fee>=90?'var(--amber)':'var(--red)';
+    const rc=p.rev>=1200?'var(--green)':p.rev>=1100?'var(--amber)':'var(--red)';
+    const rs=reportedStyle[p.reported];
+    const reportedBadge=`<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;background:${rs.bg};color:${rs.color};display:inline-flex;align-items:center;gap:3px"><span style="width:5px;height:5px;border-radius:50%;background:${rs.dot};flex-shrink:0"></span>${rs.label}</span><span style="font-size:9px;color:var(--text-tertiary);padding-left:4px">${p.reportedLabel}</span></div>`;
+    return`<div class="prog-row" style="grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.9fr 0.9fr 80px"><div><div class="sn" style="font-size:12px">${p.name}</div><div class="ss">${p.city}</div></div><div class="mv" style="color:${ec};font-size:13px">${p.enroll}%</div><div class="mv" style="color:${rc};font-size:13px">$${p.rev.toLocaleString()}</div><div class="mv" style="color:${fc};font-size:13px">${p.fee}%</div><div>${reportedBadge}</div><div><span class="bsub" style="font-size:9px;background:${p.sub==='$0'?'#EAF3DE':'#F0E6FE'};color:${p.sub==='$0'?'#3B6D11':'#6B21A8'}">${p.sub==='$0'?'✓ Filed':p.sub+' pending'}</span></div><div style="text-align:center"><span class="badge ${p.status}">${p.sl}</span></div></div>`;
+  }).join('');
+  return`
+  <div id="view-overview" class="view active">
+    <div class="sum-strip">${sC('Programs supported','28','Across Denver metro area','du')}${sC('Avg enrollment','87.4%','↑ from 85.1% last quarter','du')}${sC('Avg fee collection','92.1%','↓ 4.9% from 97% benchmark','df')}${sC('Subsidy pending','$24,600','Across 10 programs · Urgent','dd')}</div>
+    <div style="background:#F5F0FE;border:0.5px solid #C4B5FD;border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px;font-size:12px;color:#4C1D95">🏛️ <strong>Subsidy alert — your highest-priority action this week:</strong> $24,600 in reimbursements are unfiled or at risk of lapsing across 10 programs in your portfolio. $8,400 expires within 7 days. <span style="cursor:pointer;text-decoration:underline" onclick="switchView('subsidy',document.getElementById('nav-subsidy'))">View subsidy tracker →</span></div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Portfolio Iron Triangle health</div></div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px">
+          <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px"><div style="font-size:10px;color:var(--text-tertiary)">At/above 90% enrollment</div><div style="font-size:20px;font-weight:600;color:var(--green)">19 / 28</div></div>
+          <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px"><div style="font-size:10px;color:var(--text-tertiary)">At/above 95% fee coll.</div><div style="font-size:20px;font-weight:600;color:var(--amber)">11 / 28</div></div>
+          <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px"><div style="font-size:10px;color:var(--text-tertiary)">Subsidy fully filed</div><div style="font-size:20px;font-weight:600;color:#8B5CF6">18 / 28</div></div>
+        </div>
+        <div style="position:relative;width:100%;height:160px"><canvas id="sspEnrollChart"></canvas></div>
+      </div>
+      <div class="card"><div class="card-header"><div class="card-title">AI — SSP priority actions</div><span class="badge bt">6 items</span></div>
+        ${iR('ir','⚑','<strong>6 programs need intervention</strong> — below benchmark on 2+ metrics. Schedule check-ins this week.','View intervention queue',`switchView('intervention',document.getElementById('nav-intervention'))`)}
+        ${iR('ir','📅','<strong>3 programs overdue on data reporting</strong> — Sunrise (47d), Bright Beginnings (41d), Little Explorers (32d). Metrics may be stale. Follow up before acting on their numbers.','View program health',`switchView('programs',document.getElementById('nav-programs'))`)}
+        ${iR('ip','🏛️','<strong>$8,400 in subsidies expire in 7 days</strong> — 4 programs with expired vouchers need immediate filing.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}
+        ${iR('ip','🔍','<strong>Eligibility screening opportunity:</strong> 5 programs have enrolled children who likely qualify for subsidies but have never been screened. Potential $15–25K/month.','','')}
+        ${iR('ig','↑','<strong>12 anchor programs</strong> are above benchmark on all 3 metrics and subsidy fully filed. Consider a peer mentor model.','Ask AI','toggleAI()')}
+        ${iR('ib','◎','<strong>Portfolio enrollment trending up:</strong> 87.4% avg, up from 85.1% last quarter. On track for 89% by Q2.','View projections',`switchView('intervention',document.getElementById('nav-intervention'))`)}
+      </div>
+    </div>
+    <div class="card"><div class="card-header"><div class="card-title">Portfolio trend — avg enrollment & fee collection</div></div>${leg(['#1D7A9E','Avg enrollment %'],['#8B5CF6','Avg fee collection %'])}<div style="position:relative;width:100%;height:180px"><canvas id="sspTrendChart"></canvas></div></div>
+  </div>
+  <div id="view-programs" class="view">
+    <div class="sum-strip">${sC('Total programs','28','Across 5 counties','du')}${sC('Strong / on track','15','Above benchmark on all metrics','du')}${sC('Watch','7','1–2 metrics below benchmark','df')}${sC('Intervention needed','6','Below 2+ benchmarks','dd')}</div>
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text-secondary);display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+      <span>Click any row to view program details.</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block"></span> Current &lt;7 days</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#888780;display:inline-block"></span> Recent 7–14 days</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#EF9F27;display:inline-block"></span> Late 15–30 days</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#E24B4A;display:inline-block"></span> Overdue 30+ days</span>
+    </div>
+    <div class="prog-hdr" style="grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.9fr 0.9fr 80px"><span>Program</span><span style="text-align:center">Enrollment</span><span style="text-align:center">Rev/Child</span><span style="text-align:center">Fee Coll.</span><span>Data reported</span><span>Subsidy status</span><span style="text-align:center">Status</span></div>
+    ${progRows}
+    <div style="text-align:center;padding:10px;font-size:12px;color:var(--text-tertiary)">Showing 10 of 28 programs · <span style="cursor:pointer;color:var(--teal)">View all →</span></div>
+  </div>
+  <div id="view-intervention" class="view">
+    <div class="sum-strip">${sC('Programs in intervention','6','Flagged this quarter','dd')}${sC('Avg enrollment','77.5%','vs 87.4% portfolio average','dd')}${sC('Combined subsidy pending','$17,500','Across 6 programs','dd')}${sC('Estimated recovery','$8,400/mo','If benchmarks restored','du')}</div>
+    <div class="card" style="margin-bottom:14px"><div class="card-header"><div class="card-title">Intervention queue — programs below 2+ benchmarks</div><span class="badge br">6 programs</span></div>
+      ${[{name:'Sunrise Learning Center',issue:'Enrollment 72% + fee coll. 86%',sub:'$3,200',action:'Director meeting scheduled'},
+         {name:'Bright Beginnings Westside',issue:'Enrollment 74% — all metrics declining',sub:'$2,200',action:'Awaiting director response'},
+         {name:'Community Kids Cooperative',issue:'Fee coll. 84% + subsidy gap $4,100',sub:'$4,100',action:'Subsidy filing support needed'},
+         {name:'Little Explorers (East)',issue:'Enrollment 78% + rev/child $1,080',sub:'$1,800',action:'Rate review in progress'},
+         {name:'Northside CDC',issue:'Revenue/child $1,020 — rate not updated 2yr',sub:'$1,400',action:'Rate benchmarking queued'},
+         {name:'Rainbow Bridge',issue:'Enrollment 81% + $4,800 subsidy unfiled',sub:'$4,800',action:'Subsidy filing urgent'}
+        ].map(p=>`<div class="ins-row"><div class="ins-ico ir">⚑</div><div style="flex:1"><div class="ins-txt"><strong>${p.name}:</strong> ${p.issue}</div><div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap"><span class="bsub" style="font-size:10px">${p.sub} subsidy pending</span><span style="font-size:11px;color:var(--text-tertiary)">${p.action}</span></div></div></div>`).join('')}
+    </div>
+  </div>
+  <div id="view-enrollment" class="view">
+    <div class="sum-strip">${sC('Portfolio avg enrollment','87.4%','↑ from 85.1% last quarter','du')}${sC('Programs above 90%','12','43% of portfolio','du')}${sC('Programs below 80%','4','All in intervention queue','dd')}${sC('Enrollment trend','Improving','3rd consecutive quarter up','du')}</div>
+    <div class="card" style="margin-bottom:14px"><div class="card-header"><div class="card-title">Enrollment distribution across programs</div></div><div style="position:relative;width:100%;height:200px"><canvas id="sspEnrollChart2"></canvas></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">Enrollment AI insights</div></div>${iR('ir','⚑','<strong>4 programs below 80%</strong> — concentrated among programs with director tenure under 18 months.','','')}${iR('ia','⚠','<strong>Rural programs</strong> (6 of 28) average 82% enrollment vs 90% for urban. Market size vs director capacity issue.','','')}${iR('ig','↑','<strong>Peer mentor model:</strong> Your 12 anchor programs average 92% enrollment. Structured mentorship could lift mid-tier programs by 3–5 points.','','')}</div></div>
+  <div id="view-revenue" class="view">
+    <div class="sum-strip">${sC('Portfolio avg rev/child','$1,148','Range: $1,020–$1,310 across programs','df')}${sC('Subsidy as % of revenue','21%','Avg across portfolio','du')}${sC('Subsidy pending','$24,600','Suppressing effective rev/child','dd')}${sC('Rate update needed','11 programs','Last updated 18+ months ago','df')}</div>
+    <div class="card"><div class="card-header"><div class="card-title">Revenue AI insights</div></div>${iR('ip','🏛️','<strong>Subsidy is 21% of portfolio revenue</strong> — programs that fully capture subsidy average $180/child/month more than those with pending reimbursements.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}${iR('ia','$','<strong>11 programs</strong> haven\'t updated rates in 18+ months. Portfolio-wide rate benchmarking support could add $40–60K/month in revenue.','','')}${iR('ig','↑','<strong>Top 5 programs by rev/child</strong> all have: auto-pay enrollment above 65%, subsidy fully filed, and rates updated within 12 months.','','')}</div></div>
+  <div id="view-collection" class="view">
+    <div class="sum-strip">${sC('Portfolio avg fee coll.','92.1%','↓ 4.9% from 97% benchmark','df')}${sC('Total outstanding','~$87K','Across all 28 programs','dd')}${sC('Programs below 90%','8','2 critical, 6 at-risk','dd')}${sC('Auto-pay avg enrollment','44%','vs 65% recommended','df')}</div>
+    <div class="card"><div class="card-header"><div class="card-title">Collection AI insights</div></div>${iR('ir','⚑','<strong>Community Kids Cooperative</strong> at 84% — $4,100 in subsidy reimbursements are masking the true gap. Filing subsidy AND direct outreach needed.','','')}${iR('ip','🏛️','<strong>Subsidy filing directly improves collection rates</strong> — programs with pending reimbursements average 2.8 points lower collection than those fully filed. It\'s the same metric.','Go to subsidy tracker',`switchView('subsidy',document.getElementById('nav-subsidy'))`)}${iR('ig','↑','<strong>Anchor programs average 95.8% collection</strong> — all have auto-pay above 60% and subsidy fully filed. These are your two leverage points.','','')}</div></div>
+  <div id="view-subsidy" class="view">
+    ${subsidyView('ssp')}
+    <div class="card" style="margin-top:14px">
+      <div class="card-header"><div class="card-title">Subsidy status by program (top 10)</div></div>
+      <div style="position:relative;width:100%;height:220px"><canvas id="sspSubChart"></canvas></div>
+      <div style="margin-top:14px;font-size:12px;color:var(--text-secondary);line-height:1.6"><strong>18 programs</strong> have subsidy fully filed and up to date. <strong>6</strong> have pending redetermination paperwork. <strong>4</strong> have expired vouchers (file within 7 days). <strong>5</strong> have children who may qualify but have never been screened — this is your largest long-term opportunity.</div>
+    </div>
+  </div>
+  <div id="view-benchmarks" class="view">${bmSliders('#1D7A9E')}</div>
+  <div id="view-reports" class="view"><div class="card" style="max-width:520px"><div class="card-header"><div class="card-title">Reports & Grants</div></div><p style="font-size:13px;color:var(--text-secondary);line-height:1.6">Generate program performance reports for grant applications, funder reporting, and county/state compliance. Use the Export & Share button in the top bar to generate PDF or CSV reports with subsidy data included.</p></div></div>`;
+}
+
+// Extra charts for corporate + SSP reuse
+setTimeout(()=>{
+  const extras={
+    'corpTrendChart':()=>new Chart(document.getElementById('corpTrendChart'),{type:'line',data:{labels:['Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26','Q2 26','Q3 26'],datasets:[{data:[83,84,85,86,85,87,88,87,88,90,null],borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2},{data:[null,null,null,null,null,null,null,null,88,90,92],borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2,borderDash:[5,4]},{data:[90,90,91,92,91,93,93,92,93,null,null],borderColor:'#EF9F27',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2},{data:[null,null,null,null,null,null,null,null,93,94,95],borderColor:'#EF9F27',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderWidth:2,borderDash:[5,4]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}},y:{min:78,max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}}}}),
+    'sspEnrollChart2':()=>new Chart(document.getElementById('sspEnrollChart2'),{type:'bar',data:{labels:['90%+','85–89%','80–84%','<80%'],datasets:[{label:'Programs',data:[12,7,5,4],backgroundColor:['#1D9E75','#5DCAA5','#EF9F27','#E24B4A'],borderRadius:3,barPercentage:0.55}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},stepSize:2}}}}}),
+    'ownerDonutChart2':()=>new Chart(document.getElementById('ownerDonutChart2'),{type:'doughnut',data:{labels:['Infant (100%)','Toddler (93%)','Pre-K (96%)','After School (88%)'],datasets:[{data:[100,93,96,88],backgroundColor:['#1D9E75','#5DCAA5','#EF9F27','#FAC775'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10}}}}}),
+    'ownerTrendChart3':()=>new Chart(document.getElementById('ownerTrendChart3'),{type:'line',data:{labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{data:[84,86,87,89,88,90,91,92,92,91,92,92],borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.4,pointRadius:2,borderWidth:2},{data:[90,91,92,91,93,94,93,94,93,94,94,94],borderColor:'#EF9F27',backgroundColor:'transparent',tension:0.4,pointRadius:2,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}},y:{min:80,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}}}})
+  };
+  // Build subsidy stacked charts for each persona (shared canvas pattern)
+  ['owner','franchise','corporate','ssp'].forEach(p=>{
+    const cid='subStackChart-'+p;
+    if(!dbChartsBuilt[cid]&&document.getElementById(cid)){
+      dbChartsBuilt[cid]=true;
+      const labels=p==='franchise'?schools:p==='corporate'?['Northeast','Southeast','Midwest','West']:['Jan','Feb','Mar'];
+      const priv=p==='franchise'?[1080,1080,1060,1000,1070]:p==='corporate'?[1100,980,1040,920]:[840,860,860];
+      const sub=p==='franchise'?[260,220,180,140,240]:p==='corporate'?[280,260,250,260]:[780,800,820];
+      const pend=p==='franchise'?[0,20,50,70,0]:p==='corporate'?[0,70,10,0]:[60,40,20];
+      new Chart(document.getElementById(cid),{type:'bar',data:{labels,datasets:[{label:'Private pay',data:priv,backgroundColor:'#1D9E75',borderRadius:3,barPercentage:0.7},{label:'Subsidy received',data:sub,backgroundColor:'#8B5CF6',borderRadius:3,barPercentage:0.7},{label:'Pending',data:pend,backgroundColor:'#D4B8FE',borderRadius:3,barPercentage:0.7}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},callback:v=>'$'+v}}}}});
+    }
+  });
+  Object.entries(extras).forEach(([id,fn])=>{if(!dbChartsBuilt[id]&&document.getElementById(id)){dbChartsBuilt[id]=true;fn();}});
+},300);
+</script>
+</body>
+</html>
