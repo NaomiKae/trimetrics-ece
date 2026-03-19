@@ -233,7 +233,8 @@ input[type="range"]{width:100%;cursor:pointer;}
     <input class="ob-input" type="password" placeholder="Re-enter password">
     <button class="btn-ob-primary" onclick="obGo('ob-s2')">Create account →</button>
     <hr class="divider">
-    <p style="font-size:11px;color:var(--text-tertiary);text-align:center">By continuing you agree to the Terms of Service and Privacy Policy.</p>
+    <p style="font-size:12px;color:var(--text-tertiary);text-align:center">By continuing you agree to the Terms of Service and Privacy Policy.</p>
+    <p style="text-align:center;margin-top:10px;"><span style="font-size:12px;color:var(--text-tertiary)">Just exploring? </span><button onclick="skipToDemo()" style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:500;text-decoration:underline;text-underline-offset:2px;">Skip to demo workspace →</button></p>
   </div>
 
   <!-- S2: MFA -->
@@ -603,6 +604,11 @@ function startLoading(){
     if(names.length){const sb=document.getElementById(persona+'-sync');const sn=document.getElementById(persona+'-sync-name');if(sb&&sn){sn.textContent=names.join(', ');sb.style.display='flex';}}
   },steps.length*800+600);
 }
+function skipToDemo(){
+  ob.role='franchise';ob.count='2-5';
+  launchDashboard('franchise');
+}
+
 function launchDashboard(persona){
   currentPersona=persona;dbChartsBuilt={};detailChartInst=null;currentSelSchool=null;
   setupDashboard(persona);
