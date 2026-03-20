@@ -767,7 +767,17 @@ function closeExport(){document.getElementById('export-modal').classList.add('hi
 function selExp(el){document.querySelectorAll('.exp-opt').forEach(o=>o.style.borderColor='');el.style.borderColor=PERSONAS[currentPersona]?.color||'#7B8FD4';}
 function confirmExport(){closeExport();showToast('Report exported successfully!');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
-function toggleAI(){document.getElementById('ai-panel').classList.toggle('open');}
+function toggleAI(){
+  const panel = document.getElementById('ai-panel');
+  panel.classList.toggle('open');
+  const isOpen = panel.classList.contains('open');
+  // Hide all hotspot buttons when AI panel is open, restore when closed
+  document.querySelectorAll('.hs-btn').forEach(btn => {
+    btn.style.opacity = isOpen ? '0' : '';
+    btn.style.pointerEvents = isOpen ? 'none' : '';
+  });
+  if(isOpen) closeAllBubbles();
+}
 function askAI(btn,q,responses){document.getElementById('ai-suggs').style.display='none';addAIMsg(q,'user');setTimeout(()=>addAIMsg(responses[q]||"Based on your data, your biggest lever is likely in the metric furthest from benchmark. Want me to model a specific improvement scenario?",'bot'),800);}
 function sendAI(){const inp=document.getElementById('ai-input');const v=inp.value.trim();if(!v)return;document.getElementById('ai-suggs').style.display='none';addAIMsg(v,'user');inp.value='';setTimeout(()=>addAIMsg("Great question. Based on your current portfolio data, I'd focus on the metric furthest from benchmark as your highest-leverage action. Want me to run a scenario analysis?",'bot'),900);}
 function addAIMsg(text,type){const msgs=document.getElementById('ai-msgs');const div=document.createElement('div');div.className='ai-msg '+type;if(type==='user'){div.style.background=PERSONAS[currentPersona]?.colorLight||'#E1F5EE';div.style.color='#1a1a18';div.style.alignSelf='flex-end';}div.innerHTML=text.replace(/\n/g,'<br>');msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}
