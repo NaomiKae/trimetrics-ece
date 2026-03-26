@@ -34,9 +34,9 @@ html,body{height:100%;font-family:var(--font-ui);background:var(--bg-tertiary);c
 .screen.active{display:flex;flex-direction:column;}
 
 /* ── ONBOARDING ── */
-#screen-onboarding{align-items:center;justify-content:flex-start;padding:28px 16px 48px 48px;background:var(--bg-tertiary);}
+#screen-onboarding{align-items:center;justify-content:flex-start;padding:28px 16px 48px;background:var(--bg-tertiary);}
 .disclaimer{width:100%;max-width:500px;background:#FFFBEB;border:0.5px solid var(--amber);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:24px;font-size:12px;color:#92400E;display:flex;gap:8px;align-items:flex-start;}
-.ob-card{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);padding:32px;width:100%;max-width:500px;position:relative;}
+.ob-card{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);padding:32px;width:100%;max-width:500px;}
 .logo-row{display:flex;align-items:center;gap:8px;margin-bottom:24px;justify-content:center;}
 .logo-mark{font-size:16px;font-weight:600;color:var(--text-primary);font-family:var(--font-brand);letter-spacing:-0.3px;}
 .logo-dot{width:7px;height:7px;border-radius:50%;background:#6366F1;}
@@ -105,18 +105,18 @@ h2.ob-title{font-size:20px;font-weight:600;color:var(--text-primary);margin-bott
 .sync-dot{width:7px;height:7px;border-radius:50%;background:#6366F1;animation:pulse 1.2s ease-in-out infinite;}
 
 /* ── DASHBOARD ── */
-#screen-dashboard{flex-direction:row;height:100vh;overflow:visible;}
-.sidebar{width:224px;min-width:224px;background:var(--bg-primary);border-right:0.5px solid var(--border-light);display:flex;flex-direction:column;overflow:visible;flex-shrink:0;position:relative;z-index:50;}
+#screen-dashboard{flex-direction:row;height:100vh;overflow:hidden;}
+.sidebar{width:224px;min-width:224px;background:var(--bg-primary);border-right:0.5px solid var(--border-light);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
 .logo{padding:18px 20px 14px;border-bottom:0.5px solid var(--border-light);}
-.nav{padding:10px 0;flex:1;overflow-y:auto;overflow-x:clip;}
-.nav-section{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:0.8px;text-transform:uppercase;padding:10px 20px 4px;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:13px;color:var(--text-secondary);cursor:pointer;border-left:2px solid transparent;transition:all 0.15s;user-select:none;}
+.nav{padding:10px 0;flex:1;}
+.nav-section{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:0.8px;text-transform:uppercase;padding:10px 12px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;font-size:13px;color:var(--text-secondary);cursor:pointer;border-left:2px solid transparent;transition:all 0.15s;user-select:none;}
 .nav-item.active{color:var(--accent);background:var(--accent-light);font-weight:600;}
 .nav-item:hover:not(.active){background:var(--bg-secondary);}
 .nd{width:6px;height:6px;border-radius:50%;background:var(--border-med);flex-shrink:0;}
 .footer-user{padding:14px 16px;border-top:0.5px solid var(--border-light);}
 .avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
-.main{flex:1;display:flex;flex-direction:column;overflow:visible;min-width:0;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 .topbar{background:var(--bg-primary);border-bottom:0.5px solid var(--border-light);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;flex-wrap:wrap;gap:8px;}
 .topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .period-selector{display:flex;border:0.5px solid var(--border-med);border-radius:var(--radius-md);overflow:hidden;}
@@ -179,8 +179,7 @@ h2.ob-title{font-size:20px;font-weight:600;color:var(--text-primary);margin-bott
 .rtable th{font-size:10px;font-weight:600;color:var(--text-tertiary);text-align:left;padding:6px 4px;border-bottom:0.5px solid var(--border-light);letter-spacing:0.4px;text-transform:uppercase;}
 .rtable td{padding:9px 4px;border-bottom:0.5px solid var(--border-light);vertical-align:middle;}
 .rtable tr:last-child td{border-bottom:none;}
-.ai-panel{position:fixed;right:0;top:38px;bottom:0;width:340px;background:var(--bg-primary);border-left:0.5px solid var(--border-light);display:flex;flex-direction:column;z-index:200;transform:translateX(100%);transition:transform 0.25s ease;box-shadow:-4px 0 24px rgba(0,0,0,0.08);}
-.in-iframe .ai-panel{top:0;}
+.ai-panel{position:fixed;right:0;top:0;bottom:0;width:340px;background:var(--bg-primary);border-left:0.5px solid var(--border-light);display:flex;flex-direction:column;z-index:100;transform:translateX(100%);transition:transform 0.25s ease;box-shadow:-4px 0 24px rgba(0,0,0,0.08);}
 .ai-panel.open{transform:translateX(0);}
 .ai-hdr{padding:14px 16px;border-bottom:0.5px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
 .ai-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
@@ -202,28 +201,6 @@ h2.ob-title{font-size:20px;font-weight:600;color:var(--text-primary);margin-bott
 .btn-cancel{flex:1;padding:10px;font-size:13px;border:0.5px solid var(--border-med);border-radius:var(--radius-md);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit;}
 .btn-confirm{flex:1;padding:10px;font-size:13px;color:white;border:none;border-radius:var(--radius-md);cursor:pointer;font-weight:600;font-family:inherit;background:linear-gradient(135deg,#6366F1,#7C3AED);}
 input[type="range"]{width:100%;cursor:pointer;}
-
-/* ── PROTOTYPE TOPBAR ── */
-.proto-topbar{background:#111118;color:#c8c8d4;font-family:'Courier New',monospace;font-size:12px;padding:9px 20px;display:flex;align-items:center;gap:16px;letter-spacing:0.04em;position:sticky;top:0;z-index:300;flex-shrink:0;}
-.in-iframe .proto-topbar{display:none !important;}
-.anno-toggle-track{width:34px;height:18px;border-radius:9px;background:#444;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;}
-.anno-toggle-track.on{background:var(--accent);}
-.anno-toggle-thumb{width:12px;height:12px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 2px rgba(0,0,0,0.3);}
-.anno-toggle-track.on .anno-toggle-thumb{transform:translateX(16px);}
-.anno-toggle-label{font-size:10px;color:#888;letter-spacing:0.04em;user-select:none;cursor:pointer;}
-
-/* ── HOTSPOT SYSTEM ── */
-.hs-wrap{position:absolute;z-index:250;}
-.hs-btn{width:20px;height:20px;border-radius:50%;background:rgba(17,24,39,0.15);border:2px solid rgba(17,24,39,0.6);cursor:pointer;display:block;opacity:0;pointer-events:none;transition:opacity 0.2s,transform 0.15s;}
-.hs-btn:hover{transform:scale(1.12);}
-.anno-on .hs-btn{opacity:1;pointer-events:all;}
-@keyframes anno-pulse{0%{box-shadow:0 0 0 0 rgba(17,24,39,0.3);}50%{box-shadow:0 0 0 8px rgba(17,24,39,0);}100%{box-shadow:0 0 0 0 rgba(17,24,39,0);}}
-.hs-btn.pulse{animation:anno-pulse 0.6s ease forwards;}
-.anno-bubble{position:absolute;background:#1a1a2a;color:#f0f0f8;border:1px solid #2e2e40;border-radius:var(--radius-md);padding:16px 18px 14px;width:250px;font-size:12px;line-height:1.7;box-shadow:0 8px 28px rgba(0,0,0,0.3);opacity:0;pointer-events:none;transform:translateY(5px) scale(0.97);transition:opacity 0.18s ease,transform 0.18s ease;z-index:400;text-transform:none;letter-spacing:normal;font-weight:400;font-family:var(--font-ui);}
-.anno-bubble.open{opacity:1;pointer-events:all;transform:translateY(0) scale(1);}
-.anno-bubble .ab-close{position:absolute;top:10px;right:12px;background:none;border:none;color:#888;font-size:14px;cursor:pointer;line-height:1;padding:2px;font-family:inherit;}
-.anno-bubble .ab-close:hover{color:#ccc;}
-.anno-bubble p{padding-right:18px;text-transform:none;letter-spacing:normal;}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#3B6D11;color:white;padding:11px 22px;border-radius:var(--radius-md);font-size:13px;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;font-weight:500;white-space:nowrap;}
 .toast.show{opacity:1;}
 @media(max-width:900px){.sum-strip{grid-template-columns:repeat(2,1fr);}.two-col,.three-col{grid-template-columns:1fr;}.school-hdr,.prog-hdr{display:none;}.school-row{grid-template-columns:1fr auto;}.school-row>*:not(:first-child):not(:last-child){display:none;}.prog-row{grid-template-columns:1fr auto;}.prog-row>*:not(:first-child):not(:last-child){display:none;}}
@@ -232,30 +209,11 @@ input[type="range"]{width:100%;cursor:pointer;}
 </head>
 <body>
 
-<!-- ── PROTOTYPE TOPBAR (persists across all screens) ── -->
-<div class="proto-topbar" id="protoTopbar">
-  <span>// trimetrics ece</span>
-  <div class="anno-toggle-track" id="annoToggle" onclick="toggleAnno()">
-    <div class="anno-toggle-thumb"></div>
-  </div>
-  <span class="anno-toggle-label" onclick="toggleAnno()">UX Annotations</span>
-</div>
-
-<script>
-// If inside iframe, hide our own topbar and listen for toggle messages from parent
-if(window.self !== window.top){
-  document.body.classList.add('in-iframe');
-  window.addEventListener('message', e => {
-    if(e.data && e.data.type === 'ANNO_TOGGLE') toggleAnno();
-  });
-}
-</script>
-
 <!-- ══════════════════════════════
      ONBOARDING SCREEN
 ══════════════════════════════ -->
 <div id="screen-onboarding" class="screen active">
-  <div class="disclaimer" id="ob-disclaimer">
+  <div class="disclaimer">
     <span style="font-size:14px;flex-shrink:0">⚠</span>
     <span><strong>Prototype mode:</strong> This is an interactive demo. No data you enter is stored, saved, or transmitted to any server. Integration connections are simulated.</span>
   </div>
@@ -276,7 +234,7 @@ if(window.self !== window.top){
     <button class="btn-ob-primary" onclick="obGo('ob-s2')">Create account →</button>
     <hr class="divider">
     <p style="font-size:12px;color:var(--text-tertiary);text-align:center">By continuing you agree to the Terms of Service and Privacy Policy.</p>
-    <p style="text-align:center;margin-top:10px;" id="ob-skip"><span style="font-size:12px;color:var(--text-tertiary)">Just exploring? </span><button onclick="skipToDemo()" style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:500;text-decoration:underline;text-underline-offset:2px;">Skip to demo workspace →</button></p>
+    <p style="text-align:center;margin-top:10px;"><span style="font-size:12px;color:var(--text-tertiary)">Just exploring? </span><button onclick="skipToDemo()" style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:500;text-decoration:underline;text-underline-offset:2px;">Skip to demo workspace →</button></p>
   </div>
 
   <!-- S2: MFA -->
@@ -284,7 +242,7 @@ if(window.self !== window.top){
     <div class="logo-row"><div class="logo-dot"></div><div class="logo-mark">TriMetrics <span style="color:#6366F1">ECE</span></div><div class="logo-dot"></div></div>
     <div class="step-label">STEP 2 OF 6</div>
     <div class="progress-track"><div class="progress-fill" style="width:33%"></div></div>
-    <h2 class="ob-title" id="ob-s2-title">Secure your account</h2>
+    <h2 class="ob-title">Secure your account</h2>
     <p class="ob-subtitle">Multi-factor authentication keeps your financial data safe. You can set this up later in Settings.</p>
     <div class="mfa-opt" onclick="selMFA(this)"><div class="mfa-icon" style="background:var(--green-light)">🔐</div><div><div style="font-size:13px;font-weight:600">Set up MFA now</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Use an authenticator app like Google Authenticator or Duo</div></div></div>
     <div class="mfa-opt" onclick="selMFA(this)"><div class="mfa-icon" style="background:var(--bg-secondary)">⏭</div><div><div style="font-size:13px;font-weight:600">Skip for now</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Enable MFA anytime from account settings</div></div></div>
@@ -296,13 +254,13 @@ if(window.self !== window.top){
     <div class="logo-row"><div class="logo-dot"></div><div class="logo-mark">TriMetrics <span style="color:#6366F1">ECE</span></div><div class="logo-dot"></div></div>
     <div class="step-label">STEP 3 OF 6</div>
     <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
-    <h2 class="ob-title" id="ob-s3-q3-title">Tell us about your work</h2>
-    <p class="ob-subtitle" id="ob-s3-subtitle">Three quick questions to personalize your workspace.</p>
+    <h2 class="ob-title">Tell us about your work</h2>
+    <p class="ob-subtitle">Three quick questions to personalize your workspace.</p>
     <div id="qq1">
       <div class="q-num">Question 1 of 3</div>
       <div class="q-text">Which best describes your role?</div>
       <div class="q-hint">You can update this anytime in settings.</div>
-      <div class="q-opt" id="ob-s3-firstopt" onclick="selQ(this,'role','owner')"><span class="opt-icon">🏠</span><div><div class="opt-label">Private owner</div><div class="opt-sub">I own and run my own daycare or child care center(s)</div></div></div>
+      <div class="q-opt" onclick="selQ(this,'role','owner')"><span class="opt-icon">🏠</span><div><div class="opt-label">Private owner</div><div class="opt-sub">I own and run my own daycare or child care center(s)</div></div></div>
       <div class="q-opt" onclick="selQ(this,'role','franchise')"><span class="opt-icon">🏫</span><div><div class="opt-label">Franchise owner</div><div class="opt-sub">I own one or more franchise school locations</div></div></div>
       <div class="q-opt" onclick="selQ(this,'role','corporate')"><span class="opt-icon">🏢</span><div><div class="opt-label">Corporate / enterprise</div><div class="opt-sub">I manage operations across a large network of centers</div></div></div>
       <div class="q-opt" onclick="selQ(this,'role','ssp')"><span class="opt-icon">🤝</span><div><div class="opt-label">Shared Service Provider</div><div class="opt-sub">I provide fiscal, HR, or business support services to independently owned ECE programs</div></div></div>
@@ -310,7 +268,7 @@ if(window.self !== window.top){
     </div>
     <div id="qq2" style="display:none">
       <div class="q-num">Question 2 of 3</div>
-      <div class="q-text" id="q2-text" data-anno-id="ob-q2-question">How many centers or schools are you tracking?</div>
+      <div class="q-text" id="q2-text">How many centers or schools are you tracking?</div>
       <div class="q-hint" id="q2-hint">Helps us set up the right portfolio view.</div>
       <div class="pill-row" id="q2-pills">
         <div class="pill" onclick="selPill(this,'count','1')">Just 1</div>
@@ -343,12 +301,12 @@ if(window.self !== window.top){
     <div class="progress-track"><div class="progress-fill" style="width:66%"></div></div>
     <h2 class="ob-title">Connect your data</h2>
     <p class="ob-subtitle">Link your existing tools so TriMetrics can pull the numbers automatically. You can add more later — or skip and enter data manually.</p>
-    <div id="ob-s4-nobanner" style="display:flex;align-items:flex-start;gap:8px;background:#F8F8F9;border:1px solid #E5E7EB;border-radius:var(--radius-md);padding:10px 13px;margin-bottom:16px;font-size:12px;color:var(--text-secondary)">
+    <div style="display:flex;align-items:flex-start;gap:8px;background:#F8F8F9;border:1px solid #E5E7EB;border-radius:var(--radius-md);padding:10px 13px;margin-bottom:16px;font-size:12px;color:var(--text-secondary)">
       <span style="font-size:14px;flex-shrink:0">💡</span>
       <span><strong style="color:var(--text-primary)">No data required right now.</strong> Connecting tools is optional — you can explore your workspace with sample data first and add real connections anytime from Settings. Hit <strong style="color:var(--text-primary)">Continue</strong> below to skip this step.</span>
     </div>
     <div id="int-connected-list"></div>
-    <div class="int-section-label" id="ob-s4-accsection">Accounting & finance</div>
+    <div class="int-section-label">Accounting & finance</div>
     <div class="int-grid">
       <div class="int-card" id="ic-qbo" onclick="openIntModal('qbo','QuickBooks Online','🟢')"><div class="int-logo" style="background:#E8F5E9">🟢</div><div class="int-name">QuickBooks Online</div><div class="int-desc">Revenue, expenses, P&L</div><div class="int-tag tag-pop">Most popular</div></div>
       <div class="int-card" id="ic-xero" onclick="openIntModal('xero','Xero','🔵')"><div class="int-logo" style="background:#E3F2FD">🔵</div><div class="int-name">Xero</div><div class="int-desc">Accounting & invoicing</div><div class="int-tag tag-acc">Accounting</div></div>
@@ -377,7 +335,7 @@ if(window.self !== window.top){
       </div>
       <div style="margin-top:9px;font-size:11px;color:var(--text-tertiary)">🔒 Read-only access only. TriMetrics never writes to your source data.</div>
     </div>
-    <div class="int-section-label" id="ob-s4-manual" style="margin-top:12px">Or enter data manually</div>
+    <div class="int-section-label" style="margin-top:12px">Or enter data manually</div>
     <div class="manual-opt" onclick="this.classList.toggle('selected')">
       <span style="font-size:18px">📤</span>
       <div><div style="font-size:13px;font-weight:600">Upload a CSV or enter data manually</div><div style="font-size:11px;color:var(--text-secondary);margin-top:1px">Import a spreadsheet or type in numbers directly after setup</div></div>
@@ -572,10 +530,6 @@ function obGo(id){
   const el=document.getElementById(id);
   if(el){el.style.display='';window.scrollTo(0,0);}
   if(id==='ob-s5')startLoading();
-  setTimeout(()=>{
-    injectOnboardingHotspots(id);
-    if(id==='ob-s3') injectQHotspot('ob-s3-q1');
-  }, 80);
 }
 function selMFA(el){document.querySelectorAll('.mfa-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');}
 function selQ(el,key,val){
@@ -646,7 +600,6 @@ function startLoading(){
     const persona=getPersona();
     document.querySelectorAll('#screen-onboarding>div').forEach(d=>d.style.display='none');
     const ws=document.getElementById('ob-ws-'+persona);if(ws){ws.style.display='';window.scrollTo(0,0);}
-    injectWelcomeHotspots(persona);
     const names=Object.values(intConnected).map(c=>c.name);
     if(names.length){const sb=document.getElementById(persona+'-sync');const sn=document.getElementById(persona+'-sync-name');if(sb&&sn){sn.textContent=names.join(', ');sb.style.display='flex';}}
   },steps.length*800+600);
@@ -757,7 +710,6 @@ function setupDashboard(persona){
   const suggs=document.getElementById('ai-suggs');suggs.innerHTML=p.aiSuggs.map(s=>`<button class="ai-sugg" onclick="askAI(this,'${s.replace(/'/g,"\\'")}',PERSONAS['${persona}'].aiResponses)">${s}</button>`).join('');
   switchView('overview',document.getElementById('nav-overview'));
   setTimeout(buildAllCharts,120);
-  setTimeout(injectDashboardHotspots, 150);
 }
 
 function switchView(id,el){
@@ -769,7 +721,6 @@ function switchView(id,el){
   document.getElementById('db-page-title').textContent=titles[id]||id;
   if(id==='export'){openExport();return;}
   setTimeout(buildAllCharts,50);
-  if(id==='overview') setTimeout(injectDashboardHotspots,100);
   if(currentSelSchool)closeDetail();
 }
 
@@ -779,17 +730,7 @@ function closeExport(){document.getElementById('export-modal').classList.add('hi
 function selExp(el){document.querySelectorAll('.exp-opt').forEach(o=>o.style.borderColor='');el.style.borderColor=PERSONAS[currentPersona]?.color||'#7B8FD4';}
 function confirmExport(){closeExport();showToast('Report exported successfully!');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
-function toggleAI(){
-  const panel = document.getElementById('ai-panel');
-  panel.classList.toggle('open');
-  const isOpen = panel.classList.contains('open');
-  // Hide all hotspot buttons when AI panel is open, restore when closed
-  document.querySelectorAll('.hs-btn').forEach(btn => {
-    btn.style.opacity = isOpen ? '0' : '';
-    btn.style.pointerEvents = isOpen ? 'none' : '';
-  });
-  if(isOpen) closeAllBubbles();
-}
+function toggleAI(){document.getElementById('ai-panel').classList.toggle('open');}
 function askAI(btn,q,responses){document.getElementById('ai-suggs').style.display='none';addAIMsg(q,'user');setTimeout(()=>addAIMsg(responses[q]||"Based on your data, your biggest lever is likely in the metric furthest from benchmark. Want me to model a specific improvement scenario?",'bot'),800);}
 function sendAI(){const inp=document.getElementById('ai-input');const v=inp.value.trim();if(!v)return;document.getElementById('ai-suggs').style.display='none';addAIMsg(v,'user');inp.value='';setTimeout(()=>addAIMsg("Great question. Based on your current portfolio data, I'd focus on the metric furthest from benchmark as your highest-leverage action. Want me to run a scenario analysis?",'bot'),900);}
 function addAIMsg(text,type){const msgs=document.getElementById('ai-msgs');const div=document.createElement('div');div.className='ai-msg '+type;if(type==='user'){div.style.background=PERSONAS[currentPersona]?.colorLight||'#E1F5EE';div.style.color='#1a1a18';div.style.alignSelf='flex-end';}div.innerHTML=text.replace(/\n/g,'<br>');msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}
@@ -1136,464 +1077,6 @@ setTimeout(()=>{
   });
   Object.entries(extras).forEach(([id,fn])=>{if(!dbChartsBuilt[id]&&document.getElementById(id)){dbChartsBuilt[id]=true;fn();}});
 },300);
-
-/* ────────────────────────────────
-   ONBOARDING HOTSPOTS
-──────────────────────────────── */
-function injectOnboardingHotspots(screenId){
-  // Remove previous onboarding hotspots
-  document.querySelectorAll('.ob-hs-wrap').forEach(el=>el.remove());
-
-  const configs = {
-    'ob-s1': [
-      {
-        anchorId: 'ob-disclaimer',
-        position: 'right-center',
-        copy: 'Users may hesitate to enter real info in a prototype. This disclaimer removes that friction upfront.',
-        bubbleDir: 'left'
-      },
-      {
-        anchorId: 'ob-skip',
-        position: 'right-center',
-        copy: 'Some users just want to explore. Forcing onboarding on the first screen is a common drop-off point.',
-        bubbleDir: 'left'
-      }
-    ],
-    'ob-s2': [
-      {
-        anchorId: 'ob-s2-title',
-        position: 'right-center',
-        copy: 'This is standard in applications that handle sensitive data and builds trust in the product.',
-        bubbleDir: 'left'
-      }
-    ],
-    'ob-s3-q1': [
-      {
-        anchorId: 'ob-s3-subtitle',
-        position: 'right-center',
-        copy: 'Customization is big and ensures that the user knows they have the right tool upfront to fit their specific need.',
-        bubbleDir: 'left'
-      },
-      {
-        anchorId: 'ob-s3-firstopt',
-        position: 'left-center',
-        copy: 'Different personas are represented to illustrate how a single product can be scaled and used across multiple markets.',
-        bubbleDir: 'right'
-      }
-    ],
-    'ob-s3-q2': [
-      {
-        anchorId: 'ob-q2-question',
-        position: 'left-center',
-        copy: 'Helps determine what type of data visualizations are going to be most valuable for specific types of data. Not all charts are created equally.',
-        bubbleDir: 'right',
-        useDataAttr: true
-      }
-    ],
-    'ob-s3-q3': [
-      {
-        anchorId: 'ob-s3-q3-title',
-        position: 'right-center',
-        copy: 'Though the Iron Triangle is the framework, some users only need to focus on one priority so they can see the information relevant to them and what is not.',
-        bubbleDir: 'left'
-      }
-    ],
-    'ob-s4-banner': [
-      {
-        anchorId: 'ob-s4-nobanner',
-        position: 'left-center',
-        copy: 'Reminds the user that this interactive prototype doesn\'t require real data to continue.',
-        bubbleDir: 'right'
-      },
-      {
-        anchorId: 'ob-s4-accsection',
-        position: 'left-center',
-        copy: 'Listing recognized software builds confidence that TriMetrics works within their existing workflow.',
-        bubbleDir: 'right'
-      },
-      {
-        anchorId: 'ob-s4-manual',
-        position: 'left-center',
-        copy: 'For many new users that are new to using digital work tools or those that keep track using spreadsheets.',
-        bubbleDir: 'right'
-      }
-    ]
-  };
-
-  // Map screen IDs to config keys
-  const configMap = {
-    'ob-s1': 'ob-s1',
-    'ob-s2': 'ob-s2',
-    'ob-s3': 'ob-s3-q1',
-    'ob-s4': 'ob-s4-banner'
-  };
-
-  const key = configMap[screenId];
-  if(!key) return;
-  const hotspots = configs[key];
-  if(!hotspots) return;
-
-  hotspots.forEach((hs, i) => {
-    const anchor = hs.useDataAttr
-      ? document.querySelector('[data-anno-id="'+hs.anchorId+'"]')
-      : document.getElementById(hs.anchorId);
-    if(!anchor) return;
-
-    const wrap = document.createElement('div');
-    wrap.className = 'ob-hs-wrap hs-wrap';
-    wrap.style.cssText = 'position:absolute;z-index:250;display:inline-flex;align-items:center;';
-
-    const btn = document.createElement('div');
-    btn.className = 'hs-btn';
-    btn.id = 'ob-hs-'+i+'-'+screenId;
-    btn.onclick = (e)=>{ e.stopPropagation(); toggleAnnoBubble('ob-ab-'+i+'-'+screenId); };
-
-    const bubble = document.createElement('div');
-    bubble.className = 'anno-bubble';
-    bubble.id = 'ob-ab-'+i+'-'+screenId;
-    const bDir = hs.bubbleDir === 'left' ? 'right:28px;top:-8px;' : 'left:28px;top:-8px;';
-    bubble.style.cssText = bDir + 'width:240px;';
-    bubble.innerHTML = `<button class="ab-close" onclick="event.stopPropagation();closeAllBubbles()">✕</button><p>${hs.copy}</p>`;
-
-    wrap.appendChild(btn);
-    wrap.appendChild(bubble);
-
-    anchor.style.position = 'relative';
-
-    if(hs.position === 'right-center'){
-      wrap.style.right = '-13px';
-      wrap.style.top = '50%';
-      wrap.style.transform = 'translateY(-50%)';
-    } else {
-      wrap.style.left = '-28px';
-      wrap.style.top = '50%';
-      wrap.style.transform = 'translateY(-50%)';
-    }
-
-    anchor.appendChild(wrap);
-
-    // Pulse if annotations already on
-    if(annoEnabled){
-      setTimeout(()=>{ btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse'); }, i*140);
-    }
-  });
-}
-
-// Inject Q sub-screens when nextQ is called
-const _origNextQ = typeof nextQ !== 'undefined' ? nextQ : null;
-function nextQ(n){
-  document.querySelectorAll('[id^="qq"]').forEach(b=>b.style.display='none');
-  document.getElementById('qq'+n).style.display='';
-  const qMap = {1:'ob-s3-q1', 2:'ob-s3-q2', 3:'ob-s3-q3'};
-  document.querySelectorAll('.ob-hs-wrap').forEach(el=>el.remove());
-  setTimeout(()=>injectQHotspot(qMap[n]), 80);
-}
-
-function injectQHotspot(key){
-  const configs = {
-    'ob-s3-q1': [
-      { anchorId:'ob-s3-subtitle', pos:'right', copy:'Customization is big and ensures that the user knows they have the right tool upfront to fit their specific need.', dir:'left' },
-      { anchorId:'ob-s3-firstopt', pos:'left', copy:'Different personas are represented to illustrate how a single product can be scaled and used across multiple markets.', dir:'right' }
-    ],
-    'ob-s3-q2': [
-      { anchorId:'ob-q2-question', pos:'left', copy:'Helps determine what type of data visualizations are going to be most valuable for specific types of data. Not all charts are created equally.', dir:'right', useDataAttr:true }
-    ],
-    'ob-s3-q3': [
-      { anchorId:'ob-s3-q3-title', pos:'right', copy:'Though the Iron Triangle is the framework, some users only need to focus on one priority so they can see the information relevant to them and what is not.', dir:'left' }
-    ]
-  };
-  const hotspots = configs[key];
-  if(!hotspots) return;
-  hotspots.forEach((hs,i)=>{
-    const anchor = hs.useDataAttr 
-      ? document.querySelector('[data-anno-id="'+hs.anchorId+'"]')
-      : document.getElementById(hs.anchorId);
-    if(!anchor) return;
-    const wrap = document.createElement('div');
-    wrap.className = 'ob-hs-wrap hs-wrap';
-    wrap.style.cssText = 'position:absolute;z-index:250;display:inline-flex;align-items:center;';
-    const btn = document.createElement('div');
-    btn.className = 'hs-btn';
-    btn.id = 'ob-hs-q-'+i;
-    btn.onclick = (e)=>{ e.stopPropagation(); toggleAnnoBubble('ob-ab-q-'+i); };
-    const bubble = document.createElement('div');
-    bubble.className = 'anno-bubble';
-    bubble.id = 'ob-ab-q-'+i;
-    bubble.style.cssText = (hs.dir==='left'?'right:28px;':'left:28px;')+'top:-8px;width:240px;';
-    bubble.innerHTML = `<button class="ab-close" onclick="event.stopPropagation();closeAllBubbles()">✕</button><p>${hs.copy}</p>`;
-    wrap.appendChild(btn); wrap.appendChild(bubble);
-    anchor.style.position = 'relative';
-    wrap.style.top = '50%'; wrap.style.transform = 'translateY(-50%)';
-    if(hs.pos==='right') wrap.style.right = '-13px';
-    else wrap.style.left = '-28px';
-    anchor.appendChild(wrap);
-    if(annoEnabled){ setTimeout(()=>{ btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse'); }, i*140); }
-  });
-}
-
-// Inject welcome screen hotspots
-function injectWelcomeHotspots(persona){
-  document.querySelectorAll('.ob-hs-wrap').forEach(el=>el.remove());
-  setTimeout(()=>{
-    // Badge hotspot - right of persona tag
-    const tag = document.querySelector('#ob-ws-'+persona+' .ws-tag');
-    if(tag){
-      tag.style.position = 'relative';
-      const wrap = document.createElement('div');
-      wrap.className = 'ob-hs-wrap hs-wrap';
-      wrap.style.cssText = 'position:relative;display:inline-flex;align-items:center;margin-left:8px;';
-      const btn = document.createElement('div');
-      btn.className = 'hs-btn'; btn.id = 'ob-hs-ws-1';
-      btn.onclick = (e)=>{ e.stopPropagation(); toggleAnnoBubble('ob-ab-ws-1'); };
-      const bubble = document.createElement('div');
-      bubble.className = 'anno-bubble'; bubble.id = 'ob-ab-ws-1';
-      bubble.style.cssText = 'right:28px;top:-8px;width:240px;';
-      bubble.innerHTML = `<button class="ab-close" onclick="event.stopPropagation();closeAllBubbles()">✕</button><p>Reminds user that this workspace is tailored to their business model establishing trust.</p>`;
-      wrap.appendChild(btn); wrap.appendChild(bubble);
-      tag.parentNode.insertBefore(wrap, tag.nextSibling);
-    }
-    // Subsidy banner hotspot
-    const subBanner = document.querySelector('#ob-ws-'+persona+' [style*="F5F0FE"]');
-    if(subBanner){
-      subBanner.style.position = 'relative';
-      const wrap = document.createElement('div');
-      wrap.className = 'ob-hs-wrap hs-wrap';
-      wrap.style.cssText = 'position:absolute;left:-13px;top:50%;transform:translateY(-50%);z-index:250;display:inline-flex;align-items:center;';
-      const btn = document.createElement('div');
-      btn.className = 'hs-btn'; btn.id = 'ob-hs-ws-2';
-      btn.onclick = (e)=>{ e.stopPropagation(); toggleAnnoBubble('ob-ab-ws-2'); };
-      const bubble = document.createElement('div');
-      bubble.className = 'anno-bubble'; bubble.id = 'ob-ab-ws-2';
-      bubble.style.cssText = 'left:28px;top:-8px;width:240px;';
-      bubble.innerHTML = `<button class="ab-close" onclick="event.stopPropagation();closeAllBubbles()">✕</button><p>Important but crucial piece of financial data that is often an afterthought is now showcased at the beginning.</p>`;
-      wrap.appendChild(btn); wrap.appendChild(bubble);
-      subBanner.appendChild(wrap);
-    }
-    if(annoEnabled){
-      ['ob-hs-ws-1','ob-hs-ws-2'].forEach((id,i)=>{
-        const b = document.getElementById(id);
-        if(b) setTimeout(()=>{ b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse'); }, i*140);
-      });
-    }
-  }, 80);
-}
-
-// Hook into startLoading completion to inject welcome hotspots
-const _origGetPersona = getPersona;
-// Override the workspace display to also inject welcome hotspots
-const _origObGo = obGo;
-
-// Initialize onboarding hotspots on first load
-setTimeout(()=>injectOnboardingHotspots('ob-s1'), 200);
-
-let annoEnabled = false;
-const allAnnoIds = ['hs-portfolio-overview','hs-trends','hs-nav-triangle','hs-nav-benchmarks','hs-badges','hs-status','hs-ai-btn','hs-ai-panel'];
-
-function toggleAnno(){
-  annoEnabled = !annoEnabled;
-  document.getElementById('annoToggle').classList.toggle('on', annoEnabled);
-  document.body.classList.toggle('anno-on', annoEnabled);
-  if(annoEnabled){
-    allAnnoIds.forEach((id,i)=>{
-      const btn = document.getElementById(id);
-      if(btn) setTimeout(()=>{ btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse'); }, i*100);
-    });
-  } else {
-    allAnnoIds.forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('pulse'); });
-    closeAllBubbles();
-  }
-}
-
-function toggleAnnoBubble(bubbleId){
-  const bubble = document.getElementById(bubbleId);
-  if(!bubble) return;
-  const isOpen = bubble.classList.contains('open');
-  closeAllBubbles();
-  if(!isOpen){
-    // Use fixed positioning so bubble escapes any overflow:hidden ancestor
-    const btn = bubble.previousElementSibling;
-    if(btn && btn.classList.contains('hs-btn')){
-      const rect = btn.getBoundingClientRect();
-      bubble.style.position = 'fixed';
-      bubble.style.top = Math.max(8, rect.top - 8) + 'px';
-      // Open to the right of the button
-      bubble.style.left = (rect.right + 8) + 'px';
-      bubble.style.right = 'auto';
-      bubble.style.transform = 'none';
-      // If would go off right edge, flip left
-      const bubbleWidth = 250;
-      if(rect.right + 8 + bubbleWidth > window.innerWidth){
-        bubble.style.left = 'auto';
-        bubble.style.right = (window.innerWidth - rect.left + 8) + 'px';
-      }
-      document.body.appendChild(bubble);
-    }
-    bubble.classList.add('open');
-  }
-}
-
-function closeAllBubbles(){
-  document.querySelectorAll('.anno-bubble').forEach(b=>{
-    b.classList.remove('open');
-    // Return to original parent if moved to body
-    if(b.parentElement === document.body){
-      const originalParent = document.querySelector('.hs-wrap:has(#'+b.id+')') ||
-        document.querySelector('[data-bubble-id="'+b.id+'"]');
-      // Just hide it — will be re-parented on next open
-    }
-  });
-}
-
-function makeHSBtn(id, bubbleId){ 
-  const btn = document.createElement('div');
-  btn.className = 'hs-btn';
-  btn.id = id;
-  btn.onclick = (e)=>{ e.stopPropagation(); toggleAnnoBubble(bubbleId); };
-  return btn;
-}
-
-function makeBubble(id, copy, styleStr){
-  const bubble = document.createElement('div');
-  bubble.className = 'anno-bubble';
-  bubble.id = id;
-  bubble.style.cssText = styleStr;
-  bubble.innerHTML = `<button class="ab-close" onclick="event.stopPropagation();closeAllBubbles()">✕</button><p>${copy}</p>`;
-  return bubble;
-}
-
-function injectDashboardHotspots(){
-  document.querySelectorAll('.hs-wrap').forEach(el=>el.remove());
-
-  // ── HS1: Portfolio Overview nav item ──
-  const navOverview = document.getElementById('nav-overview');
-  if(navOverview){
-    navOverview.style.cssText += ';display:flex;justify-content:space-between;align-items:center;padding-right:10px;position:relative;';
-    const wrap = document.createElement('div');
-    wrap.className = 'hs-wrap';
-    wrap.style.cssText = 'position:relative;flex-shrink:0;display:inline-flex;align-items:center;';
-    const btn = makeHSBtn('hs-portfolio-overview','ab-portfolio-overview');
-    const bubble = makeBubble('ab-portfolio-overview','This is the core value of the tool — gives users the data they need to plan and make smarter decisions before problems arise.','left:28px;top:-8px;width:240px;');
-    wrap.appendChild(btn); wrap.appendChild(bubble);
-    navOverview.appendChild(wrap);
-  }
-
-  // ── HS2: Trends & Projections nav item ──
-  const navTrends = document.getElementById('nav-projections');
-  if(navTrends){
-    navTrends.style.cssText += ';display:flex;justify-content:space-between;align-items:center;padding-right:10px;position:relative;';
-    const wrap = document.createElement('div');
-    wrap.className = 'hs-wrap';
-    wrap.style.cssText = 'position:relative;flex-shrink:0;display:inline-flex;align-items:center;';
-    const btn = makeHSBtn('hs-trends','ab-trends');
-    const bubble = makeBubble('ab-trends','Text stays black while colored badges signal status at a glance, keeping data-heavy screens readable without cognitive overload.','left:28px;top:-8px;width:240px;');
-    wrap.appendChild(btn); wrap.appendChild(bubble);
-    navTrends.appendChild(wrap);
-  }
-
-  // ── HS3: Iron Triangle section label ──
-  document.querySelectorAll('.nav-section').forEach(sec=>{
-    if(sec.textContent.trim().toLowerCase().includes('iron triangle') ||
-       sec.textContent.trim().toLowerCase().includes('metric')){
-      sec.style.cssText += ';display:flex;justify-content:space-between;align-items:center;padding-right:10px;position:relative;';
-      const wrap = document.createElement('div');
-      wrap.className = 'hs-wrap';
-      wrap.style.cssText = 'position:relative;flex-shrink:0;display:inline-flex;align-items:center;';
-      const btn = makeHSBtn('hs-nav-triangle','ab-nav-triangle');
-      const bubble = makeBubble('ab-nav-triangle','Each metric gets its own view so users can drill into the details of whichever side of the triangle needs attention.','left:28px;top:-8px;width:240px;');
-      wrap.appendChild(btn); wrap.appendChild(bubble);
-      sec.appendChild(wrap);
-    }
-  });
-
-  // ── HS4: Benchmark Settings nav item ──
-  const navBench = document.getElementById('nav-benchmarks');
-  if(navBench){
-    navBench.style.cssText += ';display:flex;justify-content:space-between;align-items:center;padding-right:10px;position:relative;';
-    const wrap = document.createElement('div');
-    wrap.className = 'hs-wrap';
-    wrap.style.cssText = 'position:relative;flex-shrink:0;display:inline-flex;align-items:center;';
-    const btn = makeHSBtn('hs-nav-benchmarks','ab-nav-benchmarks');
-    const bubble = makeBubble('ab-nav-benchmarks','Users can set their own benchmarks to reflect their specific financial goals rather than a generic standard.','left:28px;top:-8px;width:240px;');
-    wrap.appendChild(btn); wrap.appendChild(bubble);
-    navBench.appendChild(wrap);
-  }
-
-  // ── HS5: Metric card badge treatment — top-right corner inside second card ──
-  const overview = document.getElementById('view-overview');
-  if(overview){
-    const cards = overview.querySelectorAll('.sum-card');
-    if(cards[1]){
-      cards[1].style.position = 'relative';
-      const wrap = document.createElement('div');
-      wrap.className = 'hs-wrap';
-      wrap.style.cssText = 'position:absolute;top:8px;right:8px;z-index:250;display:inline-flex;align-items:center;';
-      const btn = makeHSBtn('hs-badges','ab-badges');
-      const bubble = makeBubble('ab-badges','Text stays black while colored badges signal status at a glance, keeping data-heavy screens readable without cognitive overload.','right:28px;top:-8px;width:240px;');
-      wrap.appendChild(btn); wrap.appendChild(bubble);
-      cards[1].appendChild(wrap);
-    }
-  }
-
-  // ── HS6: Status column header ──
-  const schHdr = document.querySelector('.school-hdr') || document.querySelector('.prog-hdr');
-  if(schHdr){
-    const statusCol = schHdr.lastElementChild;
-    if(statusCol){
-      statusCol.style.cssText += ';display:flex;align-items:center;gap:6px;';
-      const wrap = document.createElement('div');
-      wrap.className = 'hs-wrap';
-      wrap.style.cssText = 'position:relative;flex-shrink:0;display:inline-flex;align-items:center;';
-      const btn = makeHSBtn('hs-status','ab-status');
-      const bubble = makeBubble('ab-status','Familiar color-coded badges let users scan the health of each location instantly without reading every number.','right:28px;top:-20px;width:240px;');
-      wrap.appendChild(btn); wrap.appendChild(bubble);
-      statusCol.appendChild(wrap);
-    }
-  }
-
-  // ── HS7: AI Insights button — inline to the right ──
-  const aiBtn = document.getElementById('db-ai-btn');
-  if(aiBtn && !document.getElementById('hs-ai-btn')){
-    const outerWrap = document.createElement('div');
-    outerWrap.style.cssText = 'display:inline-flex;align-items:center;gap:8px;';
-    aiBtn.parentNode.insertBefore(outerWrap, aiBtn);
-    outerWrap.appendChild(aiBtn);
-    const wrap = document.createElement('div');
-    wrap.className = 'hs-wrap';
-    wrap.style.cssText = 'position:relative;flex-shrink:0;display:inline-flex;align-items:center;';
-    const btn = makeHSBtn('hs-ai-btn','ab-ai-btn');
-    const bubble = makeBubble('ab-ai-btn','An AI assistant that answers questions, surfaces insights, and helps users think through strategy.','right:28px;top:-20px;width:240px;');
-    wrap.appendChild(btn); wrap.appendChild(bubble);
-    outerWrap.appendChild(wrap);
-  }
-
-  // ── HS8: AI actions panel — inline right of badge ──
-  if(overview){
-    const badges = overview.querySelectorAll('.card-header .badge');
-    badges.forEach(badge=>{
-      if(!document.getElementById('hs-ai-panel')){
-        const outerWrap = document.createElement('div');
-        outerWrap.style.cssText = 'display:inline-flex;align-items:center;gap:8px;';
-        badge.parentNode.insertBefore(outerWrap, badge);
-        outerWrap.appendChild(badge);
-        const wrap = document.createElement('div');
-        wrap.className = 'hs-wrap';
-        wrap.style.cssText = 'position:relative;flex-shrink:0;display:inline-flex;align-items:center;';
-        const btn = makeHSBtn('hs-ai-panel','ab-ai-panel');
-        const bubble = makeBubble('ab-ai-panel','Surfaces the highest-priority action items on first log-in so nothing urgent gets missed.','right:28px;top:-20px;width:240px;');
-        wrap.appendChild(btn); wrap.appendChild(bubble);
-        outerWrap.appendChild(wrap);
-      }
-    });
-  }
-
-  if(annoEnabled) document.body.classList.add('anno-on');
-
-  document.addEventListener('click', e=>{
-    const onBtn = e.target.closest('.hs-btn');
-    const onBubble = e.target.closest('.anno-bubble');
-    if(!onBtn && !onBubble) closeAllBubbles();
-  }, {capture:false});
-}
 </script>
 </body>
 </html>
